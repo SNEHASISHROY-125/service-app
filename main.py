@@ -1,3 +1,4 @@
+import logging
 from fastapi import FastAPI, HTTPException, Depends
 from pydantic import BaseModel
 from sqlalchemy.orm import Session
@@ -72,4 +73,7 @@ def report_issue(issue_request: IssueRequest, db: Session = Depends(get_db)):
 
 if __name__ == "__main__":
     import uvicorn
-    uvicorn.run(app, host="0.0.0.0", port=8000)
+    import sys
+
+    logging.basicConfig(stream=sys.stdout, level=logging.INFO)
+    uvicorn.run(app, host="0.0.0.0", port=8000, log_level="info")
