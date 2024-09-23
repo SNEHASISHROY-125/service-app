@@ -127,4 +127,4 @@ if __name__ == "__main__":
     import sys
 
     logging.basicConfig(stream=sys.stdout, level=logging.INFO)
-    uvicorn.run(app, host="localhost", port=8000, log_level="info")
+    uvicorn.run(app, host="0.0.0.0", port=8000, log_level="info")
