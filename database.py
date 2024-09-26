@@ -2,8 +2,9 @@ from sqlalchemy import create_engine, Column, Integer, String, Boolean, MetaData
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 
-# DATABASE_URL = "sqlite:///./test.db"DATABASE_URL = "sqlite:////home/site/wwwroot/sqlite.db"
-DATABASE_URL = "sqlite:////home/site/wwwroot/sqlite_t1.db"
+DATABASE_URL = "sqlite:///./test.db"
+# DATABASE_URL = "sqlite:////home/site/wwwroot/sqlite.db"
+# DATABASE_URL = "sqlite:////home/site/wwwroot/sqlite_t1.db"
 
 engine = create_engine(DATABASE_URL)
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
@@ -33,6 +34,7 @@ issues = Table(
     Column("name", String),
     Column("user_id", String),
     Column("status", String),
+    Column("payments_receipt", String),
 )
 
 service_engineers = Table(

@@ -22,10 +22,6 @@ class User(BaseModel):
     email: str
     password: str
 
-class Admin(BaseModel):
-    username: str
-    password: str
-
 # Request model for the new endpoint
 class IssueRequest(BaseModel):
     issue: str
@@ -44,6 +40,11 @@ class IssueResponse(BaseModel):
 class ServiceEngineer(BaseModel):
     name: str
     availability: bool
+
+# Admin model
+class Admin(BaseModel):
+    username: str
+    password: str
 
 @app.post("/signup")
 def sign_up(user: User, db: Session = Depends(get_db)):
@@ -122,9 +123,45 @@ def add_engineer(engineer: ServiceEngineer, db: Session = Depends(get_db)):
     db.commit()
     return {"code": "success"}
 
+@app.get("/complaint/{user_id}/{complaint_id}")
+def get_complaint(user_id: str, complaint_id: str, db: Session = Depends(get_db)):
+    # Get complaint details for user_id=nil.str and complaint_id
+    if user_id == 'nil':
+        stmt = select(issues).where(issues.c.complaintid == complaint_id)
+    # Get all complaints for the user_id | complaint_id=nil.str
+    else:
+        stmt = select(issues).where(issues.c.user_id == user_id)
+        complaints = db.execute(stmt).fetchall()
+        print(type((complaints)[0]))
+        if not complaints:
+            raise HTTPException(status_code=404, detail="No complaints found for the user")
+        return {'complaints_list' : [tuple(_) for _ in complaints]}
+    complaint = db.execute(stmt).first()
+    # print(type(complaint))
+    if not complaint:
+        raise HTTPException(status_code=404, detail="Complaint not found with the complaint_id")
+    return {'complaint_list' : tuple(complaint)}
+
+@app.put("/close_complaint/{complaint_id}")
+def close_complaint(complaint_id: str, code: str, db: Session = Depends(get_db)):
+    stmt = select(issues).where(issues.c.complaintid == complaint_id)
+    complaint = db.execute(stmt).first()
+    if not complaint:
+        raise HTTPException(status_code=404, detail="Complaint not found")
+
+    # Update complaint status to closed and set payments_receipt code
+    db.execute(update(issues).where(issues.c.complaintid == complaint_id).values(status="closed", payments_receipt=code))
+
+    # Update engineer availability to online
+    engineer_name = complaint.name
+    db.execute(update(service_engineers).where(service_engineers.c.name == engineer_name).values(availability=True))
+
+    db.commit()
+    return {"code": "success", "complaint_id": complaint_id, "status": "closed"}
+
 if __name__ == "__main__":
     import uvicorn
     import sys
 
     logging.basicConfig(stream=sys.stdout, level=logging.INFO)
-    uvicorn.run(app, host="0.0.0.0", port=8000, log_level="info")
+    uvicorn.run(app, host="localhost", port=8000, log_level="info")
