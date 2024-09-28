@@ -5,6 +5,7 @@ from pydantic import BaseModel
 from sqlalchemy.orm import Session
 from database import SessionLocal, users, issues, service_engineers
 from sqlalchemy import select, update
+import test 
 
 app = FastAPI()
 
@@ -159,9 +160,9 @@ def close_complaint(complaint_id: str, code: str, db: Session = Depends(get_db))
     db.commit()
     return {"code": "success", "complaint_id": complaint_id, "status": "closed"}
 
-if __name__ == "__main__":
-    import uvicorn
-    import sys
+# if __name__ == "__main__":
+#     import uvicorn
+#     import sys
 
-    logging.basicConfig(stream=sys.stdout, level=logging.INFO)
-    uvicorn.run(app, host="localhost", port=8000, log_level="info")
+#     logging.basicConfig(stream=sys.stdout, level=logging.INFO)
+#     uvicorn.run(app, host="localhost", port=8000, log_level="info")
