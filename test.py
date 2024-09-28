@@ -1,6 +1,6 @@
-from fastapi import FastAPI, WebSocket, WebSocketDisconnect
-from fastapi.responses import HTMLResponse
-from typing import List
+# from fastapi import FastAPI, WebSocket, WebSocketDisconnect
+# from fastapi.responses import HTMLResponse
+# from typing import List
 
 # app = FastAPI()
 
@@ -22,7 +22,7 @@ html = """
     <ul id='messages'>
     </ul>
     <script>
-        var ws = new WebSocket("wss://139.59.62.148/ws");
+        var ws = new WebSocket("wss://service-app-a4b4c5c0adepeqdx.centralindia-01.azurewebsites.net/ws");
         ws.onmessage = function(event) {
             var messages = document.getElementById('messages')
             var message = document.createElement('li')
@@ -41,39 +41,39 @@ html = """
 </html>
 """
 
-class ConnectionManager:
-    def __init__(self):
-        self.active_connections: List[WebSocket] = []
+# class ConnectionManager:
+#     def __init__(self):
+#         self.active_connections: List[WebSocket] = []
 
-    async def connect(self, websocket: WebSocket):
-        await websocket.accept()
-        self.active_connections.append(websocket)
+#     async def connect(self, websocket: WebSocket):
+#         await websocket.accept()
+#         self.active_connections.append(websocket)
 
-    def disconnect(self, websocket: WebSocket):
-        self.active_connections.remove(websocket)
+#     def disconnect(self, websocket: WebSocket):
+#         self.active_connections.remove(websocket)
 
-    async def broadcast(self, message: str):
-        for connection in self.active_connections:
-            await connection.send_text(message)
+#     async def broadcast(self, message: str):
+#         for connection in self.active_connections:
+#             await connection.send_text(message)
 
-manager = ConnectionManager()
+# manager = ConnectionManager()
 
-@app.websocket("/ws")
-async def websocket_endpoint(websocket: WebSocket):
-    await manager.connect(websocket)
-    try:
-        while True:
-            data = await websocket.receive_text()
-            await manager.broadcast(data)
-    except WebSocketDisconnect:
-        manager.disconnect(websocket)
+# @app.websocket("/ws")
+# async def websocket_endpoint(websocket: WebSocket):
+#     await manager.connect(websocket)
+#     try:
+#         while True:
+#             data = await websocket.receive_text()
+#             await manager.broadcast(data)
+#     except WebSocketDisconnect:
+#         manager.disconnect(websocket)
 
-@app.get("/")
-async def get():
-    return HTMLResponse(html)
+# @app.get("/")
+# async def get():
+#     return HTMLResponse(html)
 
-# if __name__ == "__main__":
-#     import uvicorn
-#     import sys
+# # if __name__ == "__main__":
+# #     import uvicorn
+# #     import sys
 
-#     uvicorn.run(app, host="0.0.0.0", port=8000)
+# #     uvicorn.run(app, host="0.0.0.0", port=8000)
