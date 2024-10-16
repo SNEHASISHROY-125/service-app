@@ -1,0 +1,17 @@
+.azure
+
+upload.sh
+
+test.db
+
+/test
+
+test_.py
+test.html
+test.py
+
+__pycache__/
+
+.github/workflows
+*.yml
+*.png

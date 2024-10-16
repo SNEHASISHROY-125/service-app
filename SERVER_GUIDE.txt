@@ -1,0 +1,111 @@
+
+
+NGINX conf
+
+```sudo vi /etc/nginx/nginx.conf```
+
+PASTE THE FOLLOWING CONFIGURATION:
+
+user www-data;
+worker_processes auto;
+pid /run/nginx.pid;
+include /etc/nginx/modules-enabled/*.conf;
+
+events {
+    worker_connections 768;
+}
+
+http {
+    sendfile on;
+    tcp_nopush on;
+    tcp_nodelay on;
+    keepalive_timeout 65;
+    types_hash_max_size 2048;
+    include /etc/nginx/mime.types;
+    default_type application/octet-stream;
+
+    access_log /var/log/nginx/access.log;
+    error_log /var/log/nginx/error.log;
+
+    gzip on;
+    gzip_disable "msie6";
+
+    include /etc/nginx/conf.d/*.conf;
+    include /etc/nginx/sites-enabled/*;
+
+    # SSL settings
+    ssl_prefer_server_ciphers on;
+}
+
+
+```sudo vi /etc/nginx/sites-available/fastapi```
+
+PASS THE FOLLOWING CONFIGURATION:
+
+server {
+    listen 80;
+    server_name chat-app.fudemy.me;
+    return 301 https://$host$request_uri;
+}
+
+server {
+    listen 443 ssl;
+    server_name chat-app.fudemy.me;
+
+    ssl_certificate /etc/letsencrypt/live/chat-app.fudemy.me/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/chat-app.fudemy.me/privkey.pem;
+    include /etc/letsencrypt/options-ssl-nginx.conf;
+    ssl_dhparam /etc/letsencrypt/ssl-dhparams.pem;
+
+    location / {
+        proxy_pass http://0.0.0.0:8000;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection "upgrade";
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+    }
+}
+
+
+*** Test and Restart Nginx: ***
+
+sudo nginx -t
+sudo systemctl restart nginx
+
+*** Set Up SSL with Let's Encrypt (Optional but Recommended) ***
+
+sudo apt install certbot python3-certbot-nginx -y
+sudo certbot --nginx -d your_domain_or_IP
+
+*** Run FastAPI Application with Uvicorn ***
+Create a Systemd Service File: Create a service file to manage the FastAPI application:
+
+sudo vi /etc/systemd/system/fastapi.service
+
+Paste the following configuration:
+
+[Unit]
+Description=FastAPI application
+After=network.target
+
+[Service]
+User=www-data
+Group=www-data
+WorkingDirectory=/home/service-app
+Environment="PATH=/home/service-app/venv/bin"
+ExecStart=/home/service-app/venv/bin/uvicorn main:app --host 0.0.0.0 --port 8000
+
+[Install]
+WantedBy=multi-user.target
+
+*** Start and Enable the FastAPI Service: ***
+sudo systemctl daemon-reload
+sudo systemctl start fastapi
+sudo systemctl enable fastapi
+
+
+*** USE WSS FOR HTTPS ENABLED DOMAINS IN CODE***
+WebSocket("wss://chat-app.fudemy.me/ws")
