@@ -164,7 +164,7 @@ async def report_issue(issue_request: IssueRequest, db: Session = Depends(get_db
 def admin_signin(user: Admin, db: Session = Depends(get_db)):
     # Dummy admin credentials
     admin_username = "admin"
-    admin_password = "adminpass"
+    admin_password = "adminPass329"
     if user.username != admin_username or user.password != admin_password:
         raise HTTPException(status_code=400, detail="Invalid admin credentials")
     return {"code": "success"}
@@ -211,6 +211,40 @@ def close_complaint(complaint_id: str, code: str, db: Session = Depends(get_db))
     db.commit()
     return {"code": "success", "complaint_id": complaint_id, "status": "closed"}
 
+# func to modify engineer availability | params: engineer_name, availability
+@app.put("/update_engineer")
+def update_engineer(engineer_name: str, availability: bool, db: Session = Depends(get_db)):
+    stmt = select(service_engineers).where(service_engineers.c.name == engineer_name)
+    engineer = db.execute(stmt).first()
+    if not engineer:
+        raise HTTPException(status_code=404, detail="Engineer not found")
+    db.execute(update(service_engineers).where(service_engineers.c.name == engineer_name).values(availability=availability))
+    db.commit()
+    return {"code": "success", "engineer_name": engineer_name, "availability": availability}
+
+# func to get all db data | params: table_name
+@app.get("/get_all")
+def get_all(table_name: str, db: Session = Depends(get_db)):
+    # Get all complaints
+    tables = {'users': users, 'issues': issues, 'service_engineers': service_engineers, 'otp': otp}
+    if table_name not in tables:
+        # print(type(tables[_]))
+        return {"data": "Table not found"}
+    for _ in tables:
+        # print(_)
+        if _ == table_name : 
+            print((tables[_]))
+            break
+    try:
+        stmt = select(tables[_])
+        data = db.execute(stmt).fetchall()
+    except Exception as e:
+        print(e)
+        raise HTTPException(status_code=404, detail="Table not found")  
+    # print(data)
+    return {"data": 
+        [dict(zip(tables[_].columns.keys(), row)) for row in data]
+    }
 
 class ConnectionManager:
     def __init__(self):
