@@ -1,4 +1,4 @@
-import logging
+
 """
 API Documentation for Service App
 Endpoints:
@@ -433,13 +433,13 @@ async def websocket_endpoint(websocket: WebSocket):
 
 @app.get("/")
 async def get():
-    return HTMLResponse(content='llll', status_code=200)
+    return HTMLResponse(content=open("test.html").read(), status_code=200)
 
-# if __name__ == "__main__":
-#     import uvicorn
-#     import sys
+if __name__ == "__main__":
+    import uvicorn
+    import sys
     
-#     # logging.basicConfig(stream=sys.stdout, level=logging.INFO)
-#     uvicorn.run(app, host="localhost", port=8000, log_level="info")
+    # logging.basicConfig(stream=sys.stdout, level=logging.INFO)
+    uvicorn.run(app, host="localhost", port=8000, log_level="info")
 
 # i
