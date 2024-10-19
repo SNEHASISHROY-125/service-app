@@ -1,4 +1,162 @@
 import logging
+"""
+API Documentation for Service App
+Endpoints:
+----------
+1. **POST /login**
+    - Description: Log in or sign up a user by email.
+    - Parameters:
+      - email (str): The email of the user.
+    - Responses:
+      - 200: {"code": "exists-check-email", "user_id": str} if user exists.
+      - 200: {"code": "not_exist"} if user does not exist.
+    - Example using requests:
+      ```python
+      response = requests.post("http://localhost:8000/login", params={"email": "user@example.com"})
+      print(response.json())
+      ```
+2. **POST /verify_otp**
+    - Description: Verify the OTP for a user.
+    - Parameters:
+      - user_id (str): The ID of the user.
+      - otp_ (int): The OTP to verify.
+    - Responses:
+      - 200: {"code": "success"} if OTP is valid.
+      - 400: {"detail": "Invalid user_id"} if user ID is invalid.
+      - 400: {"detail": "OTP expired"} if OTP is expired.
+      - 400: {"detail": "Invalid OTP"} if OTP is invalid.
+    - Example using requests:
+      ```python
+      response = requests.post("http://localhost:8000/verify_otp", params={"user_id": "user_id", "otp_": 123456})
+      print(response.json())
+      ```
+3. **POST /login_or_signup**
+    - Description: Add a new user.
+    - Parameters:
+      - user (User): The user details (username, email).
+    - Responses:
+      - 200: {"code": "check-email", "user_id": str} if user is added successfully.
+      - 400: {"detail": "Email already exists"} if email already exists.
+    - Example using requests:
+      ```python
+      response = requests.post("http://localhost:8000/login_or_signup", json={"username": "user", "email": "user@example.com"})
+      print(response.json())
+      ```
+4. **POST /report_issue**
+    - Description: Report a new issue.
+    - Parameters:
+      - issue_request (IssueRequest): The issue details (issue, location, phone, user_id).
+    - Responses:
+      - 200: IssueResponse: The response with complaint details.
+      - 400: {"detail": "Invalid user_id"} if user ID is invalid.
+      - 400: {"detail": "No available service engineers"} if no engineers are available.
+    - Example using requests:
+      ```python
+      response = requests.post("http://localhost:8000/report_issue", json={"issue": "issue", "location": "location", "phone": "1234567890", "user_id": "user_id"})
+      print(response.json())
+      ```
+5. **POST /admin_signin**
+    - Description: Sign in as an admin.
+    - Parameters:
+      - user (Admin): The admin credentials (username, password).
+    - Responses:
+      - 200: {"code": "success"} if credentials are valid.
+      - 400: {"detail": "Invalid admin credentials"} if credentials are invalid.
+    - Example using requests:
+      ```python
+      response = requests.post("http://localhost:8000/admin_signin", json={"username": "admin", "password": "adminPass329"})
+      print(response.json())
+      ```
+6. **POST /add_engineer**
+    - Description: Add a new service engineer.
+    - Parameters:
+      - engineer (ServiceEngineer): The engineer details (name, availability).
+    - Responses:
+      - 200: {"code": "success"} if engineer is added successfully.
+    - Example using requests:
+      ```python
+      response = requests.post("http://localhost:8000/add_engineer", json={"name": "engineer_name", "availability": True})
+      print(response.json())
+      ```
+7. **GET /complaint/{user_id}/{complaint_id}**
+    - Description: Get complaint details.
+    - Parameters:
+      - user_id (str): The ID of the user.
+      - complaint_id (str): The ID of the complaint.
+    - Responses:
+      - 200: {'complaints_list': list} if user_id is provided.
+      - 200: {'complaint_list': tuple} if complaint_id is provided.
+      - 404: {"detail": "No complaints found for the user"} if no complaints are found.
+      - 404: {"detail": "Complaint not found with the complaint_id"} if complaint is not found.
+    - Example using requests:
+      ```python
+      response = requests.get("http://localhost:8000/complaint/user_id/complaint_id")
+      print(response.json())
+      ```
+8. **DELETE /close_complaint/{complaint_id}**
+    - Description: Close a complaint.
+    - Parameters:
+      - complaint_id (str): The ID of the complaint.
+      - code (str): The payment receipt code.
+    - Responses:
+      - 200: {"code": "success", "complaint_id": str, "status": "closed"} if complaint is closed successfully.
+      - 404: {"detail": "Complaint not found"} if complaint is not found.
+    - Example using requests:
+      ```python
+      response = requests.delete("http://localhost:8000/close_complaint/complaint_id", params={"code": "receipt_code"})
+      print(response.json())
+      ```
+9. **PUT /update_engineer**
+    - Description: Update engineer availability.
+    - Parameters:
+      - engineer_name (str): The name of the engineer.
+      - availability (bool): The availability status.
+    - Responses:
+      - 200: {"code": "success", "engineer_name": str, "availability": bool} if update is successful.
+      - 404: {"detail": "Engineer not found"} if engineer is not found.
+    - Example using requests:
+      ```python
+      response = requests.put("http://localhost:8000/update_engineer", params={"engineer_name": "engineer_name", "availability": True})
+      print(response.json())
+      ```
+10. **GET /get_all**
+     - Description: Get all data from a table.
+     - Parameters:
+        - table_name (str): The name of the table.
+     - Responses:
+        - 200: {"data": list} if data is retrieved successfully.
+        - 404: {"detail": "Table not found"} if table is not found.
+     - Example using requests:
+      ```python
+      response = requests.get("http://localhost:8000/get_all", params={"table_name": "users"})
+      print(response.json())
+      ```
+11. **WebSocket /ws**
+     - Description: WebSocket endpoint for real-time communication.
+     - Messages:
+        - Receives and broadcasts messages to all connected clients.
+     - Example using websockets:
+      ```python
+
+      async def communicate():
+          uri = "ws://localhost:8000/ws"
+          async with websockets.connect(uri) as websocket:
+              await websocket.send("Hello, world!")
+              response = await websocket.recv()
+              print(response)
+
+      asyncio.run(communicate())
+      ```
+12. **GET /**
+     - Description: Root endpoint.
+     - Responses:
+        - 200: HTML response with content 'llll'.
+     - Example using requests:
+      ```python
+      response = requests.get("http://localhost:8000/")
+      print(response.text)
+      ```
+"""
 import uuid
 from fastapi import FastAPI, HTTPException, Depends
 from pydantic import BaseModel
@@ -277,9 +435,11 @@ async def websocket_endpoint(websocket: WebSocket):
 async def get():
     return HTMLResponse(content='llll', status_code=200)
 
-if __name__ == "__main__":
-    import uvicorn
-    import sys
+# if __name__ == "__main__":
+#     import uvicorn
+#     import sys
     
-    # logging.basicConfig(stream=sys.stdout, level=logging.INFO)
-    uvicorn.run(app, host="localhost", port=8000, log_level="info")
+#     # logging.basicConfig(stream=sys.stdout, level=logging.INFO)
+#     uvicorn.run(app, host="localhost", port=8000, log_level="info")
+
+# i
