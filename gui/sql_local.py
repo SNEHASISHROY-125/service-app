@@ -35,8 +35,7 @@ def initialize_db(conn):
     CREATE TABLE IF NOT EXISTS users (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         user_id TEXT NOT NULL UNIQUE,
-        password TEXT NOT NULL,
-        name TEXT NOT NULL,
+        name TEXT NULL,
         email TEXT NOT NULL UNIQUE
     );
     """
