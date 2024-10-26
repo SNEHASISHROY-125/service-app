@@ -13,9 +13,9 @@ import threading , time
 KV = '''
 ScreenManager:
     id: screen_manager
+    BookApointmentScreen:
     LoginScreen:
     SignupScreen:
-    BookApointmentScreen:
     MenuScreen:
     MyAppointmentsScreen:
     WelcomeScreen:
@@ -158,6 +158,7 @@ ScreenManager:
                         box_color: 1, 1, 1, .3
                         source: "https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2F2.bp.blogspot.com%2F-8DL1_7b-4h4%2FUhNloO6amvI%2FAAAAAAAAAcU%2Fj-ZgMSBMmg4%2Fs1600%2Flord%2Bkrishna%2Bfull%2Bscreen%2Bwallpaper.jpg&f=1&nofb=1&ipt=8360efe24ba6ad51243d6ddcd7de06f98374a6e83945c8e44a35146aa3ca7a77&ipo=images"
                         pos_hint: {"center_x": .5, "center_y": .5}
+                        on_release: app.root.current = 'book_apointment'
                         
                         MDLabel:
                             text: "Hare krishna"
@@ -227,7 +228,7 @@ ScreenManager:
                 height: dp(150)
                 
             MDTextField:
-                id: user-location
+                id: user_location
                 hint_text: "Your home Location/Address"
                 max_text_length: 50
                 mode: "rectangle"
@@ -235,7 +236,7 @@ ScreenManager:
                 helper_text_mode: "on_focus"
 
             MDTextField:
-                id: user-phone
+                id: user_phone
                 hint_text: "Your phone number"
                 max_text_length: 10
                 mode: "rectangle"
@@ -515,33 +516,6 @@ class MainApp(MDApp):
         print(f"{image_name} clicked")
         threading.Thread(target=self.background_task).start()
 
-    # APP ONLY DEVELOPMENT
-    def render_appointments(self,dt):
-        appointments = _appointments_data
-        # the root MDList to add appointments to
-        appointments_list = self.root.get_screen('my_apointments').ids.appointments_list
-        # appointments = {'complaint-id': '#56608' ,'attd-name': 'NAME_', 'time': '12:00 PM', 'status': 'pending'}
-        appointments_list.add_widget(
-            TwoLineAvatarIconListItem(
-                IconLeftWidget(
-                    icon="clock"
-                ),
-                IconRightWidget(
-                    icon="chevron-right"
-                ),
-                text=appointments['complaint-id'],
-                secondary_text=appointments['status'],
-            )
-        )
-        # relese-resources
-        appointments_list = None
-        appointments = None
-        threading.Thread(target=self.close_).start()
-    def close_(self):
-        time.sleep(5)
-        _modal.dismiss()
-
-    
     def book_appointments(self,appointment:dict):
         #transition into APPOINTMENTS SCREEN
         self.root.current = 'my_apointments'
@@ -555,6 +529,69 @@ class MainApp(MDApp):
         _appointments_data.update(appointment)
         threading.Thread(target=lambda : Clock.schedule_once(self.render_appointments,0.1)).start()
         # threading.Thread(target=self.dummy).start()
+
+    # APP ONLY DEVELOPMENT
+    def render_appointments(self,dt):
+        # query the server for appointments
+        import requests
+        issue_ = str(self.root.get_screen('book_apointment').ids.issue_desc.text)
+        location_ = str(self.root.get_screen('book_apointment').ids.user_location.text)
+        phone_ = str(self.root.get_screen('book_apointment').ids.user_phone.text)
+        #
+        global res_
+        res_ = None
+        global user_id
+        if not user_id:
+            Clock.schedule_once(lambda dt: toast("User not logged in", duration=.5), 0)
+            # Clock.schedule_once(lambda dt: _modal.dismiss(), 0)
+            # return
+        def _make_query():
+            global res_
+            user_id = 'a772963d-f7ac-4a42-a0ed-9ca04c74f41a'
+            res_ = requests.post(server_url + "report_issue", json={"issue": issue_, "location": location_, "phone": phone_, "user_id": user_id}).json()
+            print(res_)
+            try:
+                if res_["detail"] == "No available service engineers" :
+                    Clock.schedule_once(lambda dt: toast("No available service engineers\ntry agin in few minutes", duration=1.5), 0)
+                elif res_["detail"] == "Invalid user_id":
+                    print("Invalid user_id")
+                    Clock.schedule_once(lambda dt: toast("Invalid user_id", duration=2.5), 2)
+            except Exception as e:
+                print(e)
+                _appointments_data['complaint-id'] = res_['complaintid']
+            #
+            threading.Thread(target=Clock.schedule_once(_add_appointments,0.1)).start()
+        def _add_appointments(dt):
+            appointments = _appointments_data
+            # the root MDList to add appointments to
+            appointments_list = self.root.get_screen('my_apointments').ids.appointments_list
+            # appointments = {'complaint-id': '#56608' ,'attd-name': 'NAME_', 'time': '12:00 PM', 'status': 'pending'}
+            appointments_list.add_widget(
+                TwoLineAvatarIconListItem(
+                    IconLeftWidget(
+                        icon="clock"
+                    ),
+                    IconRightWidget(
+                        icon="chevron-right"
+                    ),
+                    text=_appointments_data['complaint-id'],
+                    secondary_text=_appointments_data['status'],
+                )
+            )
+            # relese-resources
+            appointments_list = None
+            # appointments = None
+            print("Appointments added\n",res_,phone_)
+            threading.Thread(target=self.close_).start()
+
+        # 1. make a query to the server
+        threading.Thread(target=_make_query).start()
+        # 2. add appointments to the MDList
+
+    def close_(self):
+        time.sleep(5)
+        _modal.dismiss()
+
 
     def _init_loading_widget(self):
         ''' Initialize the loading widget '''
