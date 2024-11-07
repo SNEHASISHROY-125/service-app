@@ -33,6 +33,10 @@ def make_query(url:str, data_type:str=None,data:dict=None):
 # username = 'admin'
 # email = 'e@21'
 # password = 'admin'
-# _ = make_query('https://chat-app.fudemy.me/signup', {'username': username, 'email': email,'password': password})
-# print(_)
+try:
+    _ = requests.get('https://chat-app.fudemy.me/get_all', params={"table_name": "issues"}).json()
+except Exception as e: 
+    _ = e
+    print('CHECK YOUR INTERNET')
+print(_)
 

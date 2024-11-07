@@ -58,7 +58,7 @@ ScreenManager:
         text: "Verify OTP"
         pos_hint: {'center_x': 0.5, 'center_y': 0.4}
         on_release: app.verify_otp()
-    
+
 <SignupScreen@Screen>:
     name: 'signup'
     MDTextField:
@@ -80,7 +80,7 @@ ScreenManager:
     MDRaisedButton:
         text: "Go to Home"
         pos_hint: {'center_x': 0.5, 'center_y': 0.3}
-        on_release: app.signup()
+        on_release: app.switch_to_home()
 
 <HomeScreen@Screen>:
     name: 'home'
@@ -198,7 +198,7 @@ ScreenManager:
     MDTopAppBar:
         pos_hint: {'top': 1}
         title: "Book Apointment"
-        left_action_items: [["arrow-left", lambda x: app.switch_to_home()]]
+        left_action_items: [["arrow-left", lambda x: setattr(app.root, 'current', 'menu')]]
 
     
     MDFloatLayout:
@@ -256,7 +256,7 @@ ScreenManager:
 
         MDTopAppBar:
             title: "My Appointment"
-            left_action_items: [["arrow-left", lambda x: app.switch_to_home()]]
+            left_action_items: [["arrow-left", lambda x: setattr(app.root, 'current', 'book_apointment')]]
             right_action_items: [["account-circle-outline",]]
             elevation: 10
 
@@ -310,7 +310,7 @@ global _current_screen
 _current_screen = 'home'
 
 # def import_dependencies():
-import s_requests as s_r
+# import s_requests as s_r
 import sql_local as sq_local
 
 class MainApp(MDApp):
@@ -322,32 +322,32 @@ class MainApp(MDApp):
         return Builder.load_string(KV)
     
     # def on_start(self):
-        # # self.root.current = 'welcome'
-        # print(_modal)
-        # # kivy.clock.Clock.schedule_once(lambda:import_dependencies(), 0.1)
-        # # import dependencies
-        # import sql_local as sq_local
-        # # check if the local database exists
-        # # import_dependencies()
-        # global con_local
-        # con_local = sq_local.check_db_exists('app.db')
-        # # initialize the local-database
-        # # sq_local.initialize_db(con_local) ...
-        # # if the app is running for the first time
-        # if sq_local.query_data(con_local, 'select app_first_run from settings')[0][0] == 1:
-        #     # set the app_first_run to False
-        #     sq_local.update_data(con_local, 'settings', {'app_first_run': 0},condition={'id': 1})
-        #     # take the user to the welcome screen
-        #     kivy.clock.Clock.schedule_once(lambda dt: setattr(self.root, 'current', 'welcome'), 2.5)
-        #     # self.root.current = 'welcome'
-        # else:
-        #     # get the app theme and set it
-        #     app_theme = sq_local.query_data(con_local, 'SELECT app_theme FROM settings')[0][0]
-        #     self.theme_cls.theme_style = app_theme
-        #     app_theme = None
-        #     # take the user to the menu screen
-        #     kivy.clock.Clock.schedule_once(lambda dt: setattr(self.root, 'current', 'menu'), 2.5)
-        #     # self.root.current = 'menu'
+    #     # self.root.current = 'welcome'
+    #     print(_modal)
+    #     # kivy.clock.Clock.schedule_once(lambda:import_dependencies(), 0.1)
+    #     # import dependencies
+    #     import sql_local as sq_local
+    #     # check if the local database exists
+    #     # import_dependencies()
+    #     global con_local
+    #     con_local = sq_local.check_db_exists('app.db')
+    #     # initialize the local-database
+    #     # sq_local.initialize_db(con_local) ...
+    #     # if the app is running for the first time
+    #     if sq_local.query_data(con_local, 'select app_first_run from settings')[0][0] == 1:
+    #         # set the app_first_run to False
+    #         sq_local.update_data(con_local, 'settings', {'app_first_run': 0},condition={'id': 1})
+    #         # take the user to the welcome screen
+    #         kivy.clock.Clock.schedule_once(lambda dt: setattr(self.root, 'current', 'welcome'), 2.5)
+    #         # self.root.current = 'welcome'
+    #     else:
+    #         # get the app theme and set it
+    #         app_theme = sq_local.query_data(con_local, 'SELECT app_theme FROM settings')[0][0]
+    #         self.theme_cls.theme_style = app_theme
+    #         app_theme = None
+    #         # take the user to the menu screen
+    #         kivy.clock.Clock.schedule_once(lambda dt: setattr(self.root, 'current', 'login'), 2.5)
+    #         # self.root.current = 'menu'
 
     def on_stop(self):
         # close the local database connection
@@ -388,16 +388,22 @@ class MainApp(MDApp):
             import requests
             global server_url
             # _ = s_r.make_query("http://localhost:8000/login", data={"email": "user@example.com"})
-            _ = requests.post(url=server_url+'login', params={"email": email}).json()
+            try:
+                _ = requests.post(url=server_url+'login', params={"email": email}).json()
+            except Exception as e:
+                Clock.schedule_once(lambda dt: toast('You are offlline'),0.5)
+                Clock.schedule_once(lambda dt: _modal.dismiss() ,1)
+                return
             try:
                 if _['code'] == 'exists-check-email':
                     # save the user data to the local database
                     # import sql_local as sq_local
                     conn_ = sq_local.create_connection('app.db')
-                    sq_local.update_data(conn_, 'users', {'user_id': _['user_id'],'email': email}, {'id': 1})
+                    r_=sq_local.update_data(conn_, 'users', {'user_id': _['user_id'],'email': email}, {'id': 1})
                     # take the user to the verify OTP screen
                     global user_id
                     user_id = _['user_id']
+                    print(user_id,'\n',r_)
                     Clock.schedule_once(lambda dt: toast("Email already exists\ncheck email for otp", duration=2.5), 0)
                     Clock.schedule_once(lambda dt: setattr(self.root, 'current', 'verify_otp'), 1)
                     # Clock.schedule_once(lambda dt: setattr(self.root, 'current', 'home'), 1)
@@ -431,25 +437,35 @@ class MainApp(MDApp):
         def _make_query():
             name = self.root.get_screen('signup').ids.username.text
             email = self.root.get_screen('signup').ids.email.text
-            _ = requests.post(url=server_url+'login_or_signup', json={"username": name, "email": email}).json()
             try:
-                if _['code'] == 'check-email':
-                    # save the user data to the local database
-                    # import sql_local as sq_local
-                    conn_ = sq_local.create_connection('app.db')
-                    sq_local.update_data(conn_, 'users', {'user_id': _['user_id'],'email': email}, {'id': 1})
-                    # close the connection
-                    conn_.close()
-                    global user_id
-                    user_id = _['user_id']
-                    # take the user to the login screen
-                    Clock.schedule_once(lambda dt: setattr(self.root, 'current', 'verify_otp'), 1)
-                elif _['detail'] == "Email already exists":
-                    # take the user to the login screen
-                    Clock.schedule_once(lambda dt: toast("Email already exists", duration=1.5), 0)
-                    Clock.schedule_once(lambda dt: setattr(self.root, 'current', 'login'), 1)
+                _ = requests.post(url=server_url+'login_or_signup', json={"username": name, "email": email}).json()
+            except Exception as e:
+                Clock.schedule_once(lambda dt: toast('You are offlline'),0.5)
+                Clock.schedule_once(lambda dt: _modal.dismiss() ,1)
+                return
+            try:
+                if 'code' in _:
+                    if _['code'] == 'check-email':
+                        # save the user data to the local database
+                        # import sql_local as sq_local
+                        conn_ = sq_local.create_connection('app.db')
+                        sq_local.update_data(conn_, 'users', {'user_id': _['user_id'],'email': email}, {'id': 1})
+                        # close the connection
+                        conn_.close()
+                        global user_id
+                        user_id = _['user_id']
+                        # take the user to the login screen
+                        Clock.schedule_once(lambda dt: toast("OTP sent", duration=1.5), 1)
+                        Clock.schedule_once(lambda dt: setattr(self.root, 'current', 'verify_otp'), 1)
+                elif 'detail' in _:
+                    if _['detail'] == "Email already exists":
+                        # take the user to the login screen
+                        Clock.schedule_once(lambda dt: toast("Email already exists", duration=1.5), 1)
+                        Clock.schedule_once(lambda dt: setattr(self.root, 'current', 'login'), 1)
             except Exception as e:
                 print(f"Exception occurred: {e}")
+                Clock.schedule_once(lambda dt: toast("EXCEPTION ",e[:10], duration=1.5), 1)
+
             finally:
                 print(_)
                 _modal.dismiss()
@@ -467,9 +483,13 @@ class MainApp(MDApp):
             global _current_screen
             # loading screen
             otp = int(self.root.get_screen('verify_otp').ids.otp.text)
-            _ = requests.post(url=server_url+'verify_otp', params={"user_id": user_id, "otp_": otp}).json()
-            # close the modal
-            _modal.dismiss()
+            try:
+                _ = requests.post(url=server_url+'verify_otp', params={"user_id": user_id, "otp_": otp}).json()
+            except Exception as e:
+                Clock.schedule_once(lambda dt: toast('You are offlline'),0.5)
+                # close the modal
+                Clock.schedule_once(lambda dt: _modal.dismiss() ,1)
+                return
             try:
                 # print(_)
                 if _['code'] == 'success':
@@ -547,12 +567,21 @@ class MainApp(MDApp):
             # return
         def _make_query():
             global res_
+            # demo user_id
             user_id = 'a772963d-f7ac-4a42-a0ed-9ca04c74f41a'
-            res_ = requests.post(server_url + "report_issue", json={"issue": issue_, "location": location_, "phone": phone_, "user_id": user_id}).json()
+            try:
+                res_ = requests.post(server_url + "report_issue", json={"issue": issue_, "location": location_, "phone": phone_, "user_id": user_id}).json()
+            except Exception as e:
+                Clock.schedule_once(lambda dt: toast('You are offlline'),0.5)
+                Clock.schedule_once(lambda dt: _modal.dismiss() ,1)
+                return
             print(res_)
             try:
                 if res_["detail"] == "No available service engineers" :
                     Clock.schedule_once(lambda dt: toast("No available service engineers\ntry agin in few minutes", duration=1.5), 0)
+                    # not available
+                    _modal.dismiss()
+                    return
                 elif res_["detail"] == "Invalid user_id":
                     print("Invalid user_id")
                     Clock.schedule_once(lambda dt: toast("Invalid user_id", duration=2.5), 2)
@@ -562,7 +591,7 @@ class MainApp(MDApp):
             #
             threading.Thread(target=Clock.schedule_once(_add_appointments,0.1)).start()
         def _add_appointments(dt):
-            appointments = _appointments_data
+            # appointments = _appointments_data
             # the root MDList to add appointments to
             appointments_list = self.root.get_screen('my_apointments').ids.appointments_list
             # appointments = {'complaint-id': '#56608' ,'attd-name': 'NAME_', 'time': '12:00 PM', 'status': 'pending'}
@@ -591,7 +620,6 @@ class MainApp(MDApp):
     def close_(self):
         time.sleep(5)
         _modal.dismiss()
-
 
     def _init_loading_widget(self):
         ''' Initialize the loading widget '''

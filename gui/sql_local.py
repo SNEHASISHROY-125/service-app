@@ -4,9 +4,6 @@ import sqlite3 , os
 SQL for local database | app
 '''
 
-global user_table_sql
-global settings_table_sql
-
 # 1
 def check_db_exists(db_file):
     """ check if the database exists / create it if not """
@@ -14,11 +11,11 @@ def check_db_exists(db_file):
         if not os.path.exists(db_file): # if not exists
             conn = create_connection(db_file)
             # initialize the database
-            initialize_db(conn)
+            print(initialize_db(conn))
             # insert default settings
             insert_data(conn, 'settings', {'app_first_run': 1, 'app_theme': 'Light'})
             # insert default user
-            insert_data(conn, 'users', {'user_id': 'xyz', 'password': 'xyz', 'name': 'xyz', 'email': 'xyz'})
+            insert_data(conn, 'users', {'user_id': 'xyz', 'name': 'xyz', 'email': 'xyz'})
             return conn
         else:
             return create_connection(db_file)
@@ -27,7 +24,7 @@ def check_db_exists(db_file):
         return 'error'
 
 # 3
-def initialize_db(conn):
+def initialize_db(conn) -> str:
     """ initialize the database with required tables """
     global user_table_sql
     global settings_table_sql
@@ -46,8 +43,17 @@ def initialize_db(conn):
         app_theme TEXT NOT NULL
     );
     """
-    create_table(conn, user_table_sql)
-    create_table(conn, settings_table_sql)
+    try:
+        c = conn.cursor()
+        c.execute(user_table_sql)
+        c.execute(settings_table_sql)
+        conn.commit()
+    except sqlite3.Error as e:
+        print(e)
+        return 'error'
+    # create_table(conn, user_table_sql)
+    # create_table(conn, settings_table_sql)
+    return 'done initializing db'
     
 # 2
 def create_connection(db_file):
@@ -60,15 +66,7 @@ def create_connection(db_file):
         print(e)
     return conn
 
-def create_table(conn, create_table_sql):
-    """ create a table from the create_table_sql statement """
-    try:
-        c = conn.cursor()
-        c.execute(create_table_sql)
-        conn.commit()
-    except sqlite3.Error as e:
-        print(e)
-        return 'error'
+
 
 # 4
 def insert_data(conn, table, data: dict):
@@ -123,7 +121,7 @@ def update_data(conn, table, data: dict, condition: dict):
         c.execute(sql, values + condition_values)
         conn.commit()
     except sqlite3.Error as e:
-        print(e)
+        print('from sql_local',e)
         return 'error'
 
 # 5
