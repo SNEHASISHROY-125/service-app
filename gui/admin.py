@@ -1,4 +1,5 @@
 import threading
+import gc
 from kivy.clock import Clock
 from kivymd.toast import toast
 from kivy.lang import Builder
@@ -10,6 +11,10 @@ import random
 from kivymd.uix.fitimage import FitImage
 from kivymd.uix.list import TwoLineAvatarIconListItem , IconLeftWidget , IconRightWidget
 from kivymd.uix.button import MDFlatButton
+from kivymd.uix.textfield import MDTextField
+from kivymd.uix.selectioncontrol import MDSwitch
+from kivymd.uix.label import MDLabel
+from kivymd.uix.boxlayout import MDBoxLayout
 from kivy.uix.modalview import ModalView
 from kivy.uix.scrollview import ScrollView
 from kivy.properties import StringProperty
@@ -17,6 +22,7 @@ from kivy.properties import StringProperty
 # from kivymd.app import MDApp
 from kivymd.uix.dialog import MDDialog
 from kivymd.uix.list import OneLineAvatarListItem
+from kivy.properties import BooleanProperty, ObjectProperty
 
 
 '''
@@ -62,9 +68,10 @@ MDScreenManager:
                         size_hint: 1, 1
                         pos_hint: {"center_x": .5, "center_y": .5}
                         source: "{}".format(app.s_)
+                        opacity: .4
                         #radius: dp(24)
 
-                    ScrollView: 
+                    RefreshScrollView: 
                         do_scroll_x: False
                         
                         MDBoxLayout:
@@ -75,63 +82,36 @@ MDScreenManager:
                             height: self.minimum_height
                             size_hint_y: None
 
-                            MDBoxLayout:
-                                orientation: 'vertical'
-                                size_hint: 1, None
-                                spacing: dp(10)
-                                padding: dp(10)
-                        
+                            MDList:
+                                id: engineers_list
+
+                                TwoLineAvatarIconListItem:
+                                    text: "Two-line item with avatar"
+                                    theme_text_color: "Custom"
+                                    text_color: app.theme_cls.primary_color
+                                    secondary_text: "Secondary text here"
+
+                                    IconLeftWidget:
+                                        icon: "clock"
+
+                                    IconRightWidget:
+                                        icon: "chevron-right"
                                 
-                                MDBoxLayout:
-                                    orientation: 'horizontal'
-                                    size_hint: 1, None
-                                    spacing: dp(10)
-                                    padding: dp(10)
+                                TwoLineAvatarIconListItem:
+                                    text: "Two-line item with avatar"
+                                    secondary_text: "Secondary text here"
+
+                                    IconLeftWidget:
+                                        icon: "close-circle-outline"
+
+                                    IconRightWidget:
+                                        icon: "chevron-right"
                             
-                                    MDFlatButton:
-                                        text: 'Button 1'
-                                        size_hint: 0.5, 1
-                                        md_bg_color: 1, .5, 0.9, 1
-                                        on_release: 
-                                    MDFlatButton:
-                                        text: 'Button 1'
-                                        size_hint: 0.5, 1
-                                        md_bg_color: .3, 1, 0.9, 1
-                                        on_release: 
-                                
-                                MDBoxLayout:
-                                    orientation: 'horizontal'
-                                    size_hint: 1, None
-                                    spacing: dp(10)
-                                    padding: dp(10)
-
-                                    MDFlatButton:
-                                        text: 'Button 1'
-                                        size_hint: 0.5, 1
-                                        md_bg_color: 1, .5, 0.9, 1
-                                        on_release:
-                                    MDFlatButton:
-                                        text: 'Button 1'
-                                        size_hint: 0.5, 1
-                                        md_bg_color: .3, 1, 0.9, 1
-                                MDBoxLayout:
-                                    orientation: 'horizontal'
-                                    size_hint: 1, None
-                                    spacing: dp(10)
-                                    padding: dp(10)
-
-                                    MDFlatButton:
-                                        text: 'Button 1'
-                                        size_hint: 0.5, 1
-                                        md_bg_color: 1, .5, 0.9, 1
-                                        on_release:
-                                    MDFlatButton:
-                                        text: 'Button 1'
-                                        size_hint: 0.5, 1
-                                        md_bg_color: .3, 1, 0.9, 1
-
-                                    
-                        
+                    MDFloatingActionButton:
+                        icon: "plus"
+                        pos_hint: {"center_x": .7, "center_y": .1}
+                        on_release: app.add_engineer()
+                            
 
 
             MDBottomNavigationItem:
@@ -145,6 +125,7 @@ MDScreenManager:
                         size_hint: 1, 1
                         pos_hint: {"center_x": .5, "center_y": .5}
                         source: "{}".format(app.s_)
+                        opacity: .4
                         #radius: dp(24)
 
                     ScrollView:
@@ -181,6 +162,60 @@ server_url = "https://chat-app.fudemy.me/" # server url
 class Item(OneLineAvatarListItem):
     # divider = None
     source = StringProperty()
+
+class PullToRefreshBehavior:
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        self._start_touch_y = None
+
+    def on_touch_down(self, touch):
+        if self.collide_point(*touch.pos):
+            self._start_touch_y = touch.y
+        return super().on_touch_down(touch)
+
+    def on_touch_up(self, touch):
+        if self._start_touch_y and self._start_touch_y - touch.y > 50:
+        # if self._start_touch_y and touch.y - self._start_touch_y > 150:  # Adjust the threshold as needed
+            self.refresh()
+        self._start_touch_y = None
+        return super().on_touch_up(touch)
+
+    def refresh(self):
+        print("Pulled down to refresh!")
+        # Add your refresh logic here
+
+global _APP
+
+class RefreshScrollView(PullToRefreshBehavior, ScrollView):
+    refreshing = BooleanProperty(False)
+    spinner = ObjectProperty(None)
+    global _modal
+    global _APP
+
+    def refresh(self):
+        # self.refreshing = True
+        # self.spinner.opacity = 1  # Show the spinner
+        # self.spinner.active = True  # Start the spinner
+        print("Pulled down to refresh!")
+        _modal.open()
+        threading.Thread(target=self.run_background_task).start()  # Run the background task in a separate thread
+
+    def run_background_task(self):
+        try:
+            _APP.render_engineers()
+        except Exception as e:
+            print(e)
+
+    # def update_list(self, dt):
+    #     self.refreshing = False
+    #     try:
+    #         _APP.render_engineers()
+    #     except Exception as e:
+    #         print(e)
+        # print(_APP)
+        # _modal.dismiss()
+        # self.spinner.opacity = 0  # Hide the spinner
+        # self.spinner.active = False  # Stop the spinner
 
 class AdminDashboardApp(MDApp):
     s_ = source_
@@ -324,8 +359,203 @@ class AdminDashboardApp(MDApp):
         # 
         threading.Thread(target=_query).start()
 
+    def render_engineers(self):
+        def _query():
+            import requests
+            from kivy.clock import Clock
+            from kivymd.toast import toast
+            global _engineers
+            try:
+                _engineers = requests.get(url=server_url+"get_all", params={"table_name": "service_engineers"}).json()
+                print(_engineers)
+            except Exception as e:
+                Clock.schedule_once(lambda dt: toast('You are offlline'),0.5)
+                Clock.schedule_once(lambda dt: _modal.dismiss() ,1)
+                return
+            # if response contains issues ->
+            if _engineers:
+                Clock.schedule_once(_add_complaints, 0.1)
+
+
+        def _add_complaints(dt):
+            # appointments = _appointments_data
+            # the root MDList to add appointments to
+            global _engineers
+            global _modal
+            def bind_list_item(x):
+                # print(x.text)
+                # scroll_view = ScrollView(
+                #     do_scroll_x= False
+                #     )
+                # list_item = TwoLineAvatarIconListItem(text=x['issue'], secondary_text=x['complaintid'])
+                # scroll_view.add_widget(list_item)
+                # _modal_issue.add_widget(scroll_view)
+
+                def not_none(x): 
+                    if not x :
+                        print(x)
+                        return 'not-availale'
+                    else: return x
+                # dialog
+                m_  =   MDDialog(
+                    title=x['status'],
+                    type="simple",
+                    items=[
+                        Item(text=not_none(x['issue']), theme_text_color="Custom", text_color=self.theme_cls.primary_color, source="https://cdn.iconscout.com/icon/free/png-256/doctor-1851563-1569282.png"),
+                        Item(text=not_none(x['complaintid']), theme_text_color="Custom", text_color=self.theme_cls.primary_color, source="https://cdn.iconscout.com/icon/free/png-256/doctor-1851563-1569282.png"),
+                        Item(text=not_none(x['status']), theme_text_color="Custom", text_color=self.theme_cls.primary_color, source="https://img.icons8.com/color/240/ok--v1.png"),
+                        Item(text=not_none(x['name']), theme_text_color="Custom", text_color=self.theme_cls.primary_color, source="https://cdn.iconscout.com/icon/free/png-256/doctor-1851563-1569282.png"),
+                        Item(text=not_none(str(x['phone'])), theme_text_color="Custom", text_color=self.theme_cls.primary_color, source="https://cdn.iconscout.com/icon/free/png-256/doctor-1851563-1569282.png"),
+                        Item(text=not_none(x['user_id']), theme_text_color="Custom", text_color=self.theme_cls.primary_color, source="https://cdn.iconscout.com/icon/free/png-256/doctor-1851563-1569282.png"),
+                        Item(text=not_none(x['esttime']), theme_text_color="Custom", text_color=self.theme_cls.primary_color, source="https://cdn.iconscout.com/icon/free/png-256/doctor-1851563-1569282.png"),
+                        Item(text=not_none(x['location']), theme_text_color="Custom", text_color=self.theme_cls.primary_color, source="https://cdn.iconscout.com/icon/free/png-256/doctor-1851563-1569282.png"),
+                        Item(text=not_none(x['payments_receipt']), theme_text_color="Custom", text_color=self.theme_cls.primary_color, source="https://cdn.iconscout.com/icon/free/png-256/doctor-1851563-1569282.png"),
+                    ],
+                    buttons=[
+                        MDFlatButton(
+                            text="CLOSE",
+                            theme_text_color="Custom",
+                            text_color=self.theme_cls.primary_color,
+                            on_release=lambda x: m_.dismiss()
+                        ),
+                    ],
+                )
+                
+                #
+                global _modal
+                m_.bind(on_open=lambda x:_modal.dismiss())
+                m_.bind(on_pre_dismiss=lambda x : m_.clear_widgets())
+                # m_.bind(on_pre_dismiss=lambda x: clr(m=m_))
+                m_.open()
+
+            appointments_list = self.root.get_screen("admin_dashboard").ids.engineers_list
+            # appointments = {'complaint-id': '#56608' ,'attd-name': 'NAME_', 'time': '12:00 PM', 'status': 'pending'}
+            # remove all widgets from the list
+            appointments_list.clear_widgets()
+            self.clear_widgets(appointments_list)  # Clear existing items
+
+            ## 
+            global _issue_widget_list
+            _issue_widget_list = [] 
+            for i in _engineers['data']:
+                print(i)
+                # icon
+                if i['availability'] == True: icon_ = "home"
+                elif i['availability'] == False: icon_ = "briefcase"
+                else: icon_ = "home"
+                # elif i['status'] == 'canceled': icon_ = "close-circle-outline"
+                icon = "account-hard-hat"
+                _issue_widget = TwoLineAvatarIconListItem(
+                        IconLeftWidget(
+                            icon=icon,
+
+                            theme_text_color="Custom",
+                            text_color='green' if i['availability'] else 'orange'
+                        ),
+                        IconRightWidget(
+                            icon=icon_,
+                            theme_text_color="Custom",
+                            text_color= 'green' if i['availability'] else 'orange',
+                            on_press=lambda x: threading.Thread(target=_modal.open()).start(),
+                            # on_release=lambda x,i=i: bind_list_item(i),
+                        ),
+                        text= i['name'],
+                        secondary_text= str('busy with a complaint' if not i['availability'] else 'available'),
+                        theme_text_color="Custom",
+                        text_color = self.theme_cls.primary_color,
+                    )
+                # bind the on_press event
+                _issue_widget.bind(on_release=lambda x: print(x.text,x))
+                # add the widget to the list
+                appointments_list.add_widget(_issue_widget, index=0)
+                # relese-resources
+                # _issue_widget.clear_widgets()
+                _issue_widget_list.append(_issue_widget)
+                _issue_widget = None
+            
+            # relese-resources
+            appointments_list = None
+            print(_issue_widget_list, len(_issue_widget_list) , len(_engineers['data']))
+            # Force garbage collection
+            gc.collect()    
+            # print("Appointments added\n",res_,phone_)
+            Clock.schedule_once(lambda dt: _modal.dismiss() ,1)
+        # 
+        threading.Thread(target=_query).start()
+
+    def clear_widgets(self, container):
+        # Remove widgets from the container
+        [container.remove_widget(widget) for widget in container.children[:]]
+            
+        # Force garbage collection
+        gc.collect()
+
+    # add engineers
+    def add_engineer(self):
+        # dialog
+        self.dialog = MDDialog(
+            title="Add Engineer",
+            type="custom",
+            content_cls=MDBoxLayout(
+            MDTextField(
+                hint_text="Engineer Name",
+                # id="engineer_name"
+            ),
+            MDBoxLayout(
+                MDLabel(
+                    text="Set Availability"),
+                MDSwitch(
+                    # id="availability",
+                    # active=True,
+                    pos_hint={"center_x": 0.5},
+                    ),
+                orientation="horizontal",
+            ),
+            orientation="vertical",
+            spacing="12dp",
+            size_hint_y=None,
+            height="120dp"
+            ),
+            buttons=[
+            MDFlatButton(
+                text="CANCEL",
+                on_release=lambda x: self.dialog.dismiss()
+            ),
+            MDFlatButton(
+                text="ADD",
+                # on_release=self.add_engineer_to_list
+                # mdswitch
+                # on_release=lambda x: print(self.dialog.children[0].children[2].children[0].children[0].children[0])
+                on_release=lambda x: add_engineer_to_list(name_=self.dialog.children[0].children[2].children[0].children[1].text)
+            ),
+            ],
+        )
+        self.dialog.open()
+
+        def add_engineer_to_list( name_,*args):
+            #
+            self.dialog.dismiss()
+            import requests
+            try:
+                _engineers = requests.post(url=server_url+"add_engineer", json={"name": str(name_), "availability": True}).json()
+                print(_engineers)
+            except Exception as e:
+                Clock.schedule_once(lambda dt: toast('You are offlline'),0.5)
+                Clock.schedule_once(lambda dt: _modal.dismiss() ,1)
+                return
+            
+            global _modal
+            _modal.open()
+            if _engineers['code'] == 'success':
+                # add to the list
+                self.render_engineers()
+
     def on_start(self):
         self._init_loading_widget()
+        # 1
+        _modal.open()
+        self.render_engineers()
+        # 2
         _modal.open()
         self.render_complaints()
         # threading.Thread(target=self.render_complaints).start()
@@ -339,5 +569,8 @@ class AdminDashboardApp(MDApp):
         pass
     
 
+
+_APP = AdminDashboardApp()
+
 if __name__ == "__main__":
-    AdminDashboardApp().run()
+    _APP.run()

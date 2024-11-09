@@ -8,7 +8,8 @@ test.db
 
 test_.py
 
-test.py
+gui/test.py
+gui/test2.py
 
 __pycache__/
 
