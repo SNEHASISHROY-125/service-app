@@ -133,11 +133,11 @@ ScreenManager:
             left_action_items: [["arrow-left", lambda x: app.switch_to_home()]]
             right_action_items: [["account-circle-outline", lambda x: app.switch_to_login()]]
             elevation: 10
-        
+
         BoxLayout:
             orientation: 'vertical'
             padding: dp(10)
-    
+
     
             MDBoxLayout:
                 orientation: 'vertical'

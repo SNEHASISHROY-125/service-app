@@ -156,6 +156,18 @@ Endpoints:
       response = requests.get("http://localhost:8000/")
       print(response.text)
       ```
+13. **DELETE /delete_engineer**
+    - Description: Delete an engineer from the database.
+    - Parameters:
+        - engineer_name (str): The name of the engineer to be deleted.
+    - Responses:
+        - 200: {"code": "success", "engineer_name": str, "status": "deleted"} if deletion is successful.
+        - 404: {"detail": "Engineer not found"} if engineer is not found.
+    - Example using requests:
+        ```python
+        response = requests.delete("http://localhost:8000/delete_engineer", params={"engineer_name": "engineer_name"})
+        print(response.json())
+        ```
 """
 import uuid
 from fastapi import FastAPI, HTTPException, Depends
@@ -379,6 +391,17 @@ def update_engineer(engineer_name: str, availability: bool, db: Session = Depend
     db.execute(update(service_engineers).where(service_engineers.c.name == engineer_name).values(availability=availability))
     db.commit()
     return {"code": "success", "engineer_name": engineer_name, "availability": availability}
+
+# delete engineer   
+@app.delete("/delete_engineer")
+def delete_engineer(engineer_name: str, db: Session = Depends(get_db)):
+    stmt = select(service_engineers).where(service_engineers.c.name == engineer_name)
+    engineer = db.execute(stmt).first()
+    if not engineer:
+        raise HTTPException(status_code=404, detail="Engineer not found")
+    db.execute(service_engineers.delete().where(service_engineers.c.name == engineer_name))
+    db.commit()
+    return {"code": "success", "engineer_name": engineer_name, "status": "deleted"}
 
 # func to get all db data | params: table_name
 @app.get("/get_all")

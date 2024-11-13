@@ -45,6 +45,9 @@ MDScreenManager:
     ImageLeftWidget:
         source: root.source
 
+<TwoLineAvatarIconListItem>
+    complaint_id: root.complaint_id
+
 
 <AdminDashboardScreen@MDScreen>:
     name: "admin_dashboard"
@@ -59,8 +62,8 @@ MDScreenManager:
             on_switch_tabs: print(999)
             MDBottomNavigationItem:
                 name: 'screen 1'
-                text: 'Mail'
-                icon: 'gmail'
+                text: 'service engineers'
+                icon: "account-hard-hat"
                 badge_icon: "numeric-1"
 
                 MDScreen:
@@ -77,8 +80,7 @@ MDScreenManager:
                         MDBoxLayout:
                             orientation: 'vertical'
                             size_hint: 1, None
-                            spacing: dp(10)
-                            padding: dp(10)
+                            
                             height: self.minimum_height
                             size_hint_y: None
 
@@ -116,8 +118,9 @@ MDScreenManager:
 
             MDBottomNavigationItem:
                 name: 'screen 2'
-                text: 'Twitter'
-                icon: 'twitter'
+                text: 'complaints'
+                icon: 'gmail'
+                badge_icon: "numeric-1"
 
                 MDScreen:
                    
@@ -163,6 +166,11 @@ class Item(OneLineAvatarListItem):
     # divider = None
     source = StringProperty()
 
+class TwoLineAvatarIconListItem(TwoLineAvatarIconListItem):
+    # divider = None
+    source = StringProperty()
+    complaint_id = StringProperty()
+
 class PullToRefreshBehavior:
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
@@ -174,7 +182,7 @@ class PullToRefreshBehavior:
         return super().on_touch_down(touch)
 
     def on_touch_up(self, touch):
-        if self._start_touch_y and self._start_touch_y - touch.y > 50:
+        if self._start_touch_y and self._start_touch_y - touch.y > 150:
         # if self._start_touch_y and touch.y - self._start_touch_y > 150:  # Adjust the threshold as needed
             self.refresh()
         self._start_touch_y = None
@@ -218,11 +226,15 @@ class RefreshScrollView_Complaints(PullToRefreshBehavior, ScrollView):
         Clock.schedule_once(_APP.render_complaints, .3)  # Simulate a delay
         # threading.Thread(target=self.run_background_task).start()  # Run the background task in a separate thread
 
+import time, requests
 
 class AdminDashboardApp(MDApp):
     s_ = source_
     dialog = None
     _dialog = None
+    global _modal_issue
+    _modal_issue = None
+
     def build(self):
         self.theme_cls.primary_palette = "Blue"
         self.theme_cls.primary_hue = "A700" 
@@ -240,14 +252,35 @@ class AdminDashboardApp(MDApp):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         # modal
-        global _modal_issue
-        # _modal_issue  =   ModalView(size_hint=(.5, .5), auto_dismiss=True, background='', background_color=[1, 1, 1, .5],border=[20,0,0,20])
-        _modal_issue = MDDialog(
-                title="Set backup account",
-                type="simple",
-                items=[
-                ],
-            )
+        # global _modal_issue
+        # # _modal_issue  =   ModalView(size_hint=(.5, .5), auto_dismiss=True, background='', background_color=[1, 1, 1, .5],border=[20,0,0,20])
+        # _modal_issue = MDDialog(
+        #         title="Set backup account",
+        #         type="custom",
+        #         content_cls=MDBoxLayout(
+        #             MDTextField(
+        #                 hint_text="",
+        #             ),
+        #             orientation="vertical",
+        #             spacing="12dp",
+        #             size_hint_y=None,
+        #             height="120dp",
+        #         ),
+        #         buttons=[
+        #             MDFlatButton(
+        #                 text="CANCEL",
+        #                 theme_text_color="Custom",
+        #                 text_color=self.theme_cls.primary_color,
+        #                 on_release=lambda x: _modal_issue.dismiss()
+        #             ),
+        #             MDFlatButton(
+        #                 text="OK",
+        #                 theme_text_color="Custom",
+        #                 text_color=self.theme_cls.primary_color,
+                        
+        #             ),
+        #         ],
+        #     )
         def on_pre_dismiss(instance):
             # _modal.remove_widget(image)
             _modal_issue.clear_widgets()
@@ -287,6 +320,35 @@ class AdminDashboardApp(MDApp):
                         print(x)
                         return 'not-availale'
                     else: return x
+
+            def _close_complaint(_instance,_complaint_id,_code):
+                global _modal
+                Clock.schedule_once(lambda x:_modal.open(),0.1)
+                print('from CLOSE-COMPLAINT ',_instance,_complaint_id,_code)
+                # print(_modal_issue.children[0].children[0].children[0].children[0].text)
+                def _query():
+                    server_url = "http://chat-app.fudemy.me/"
+                    global _complaints
+                    try:
+                        print(server_url)
+                        time.sleep(1) # simulate a delay | blocks main thread
+                        _complaints = requests.delete(url=server_url+f"close_complaint/{_complaint_id}", params={"code": _code}).json()
+                        print(_complaints)
+                    except Exception as e:
+                        Clock.schedule_once(lambda dt: toast('You are offlline', duration=1),0.5)
+                        Clock.schedule_once(lambda dt: _modal.dismiss() ,1)
+                        return
+                    _modal.dismiss()
+                    try:
+                        # if response contains issues ->
+                        if _complaints["code"] == "success": print('complaint closed')
+                            # Clock.schedule_once(lambda x:_add_complaints(), 0.1)
+                        elif _complaints["detail"] == "Complaint not found":
+                            Clock.schedule_once(lambda dt: toast("Complaint not found" , duration=1), 0.5)
+                    except Exception as e:
+                        print(e)
+                        Clock.schedule_once(lambda dt: toast("Error closing complaint" , duration=1), 0.5)
+                # threading.Thread(target=_query).start()
             
             def _show_dialog(_issue_data):
                 self._dialog.title = f"Complaint {_issue_data['complaintid']}"
@@ -340,30 +402,43 @@ class AdminDashboardApp(MDApp):
                     print('added new to list')
 
             for i in engineers_list.children:
-                print(engineers_list.children.index(i))
+                index = engineers_list.children.index(i)
+                print(index)
                 i.theme_text_color = "Custom"
                 i.text_color = self.theme_cls.primary_color
-                print(_complaints['data'][engineers_list.children.index(i)])
-                i.text = _complaints['data'][engineers_list.children.index(i)]['issue']
-                i.secondary_text = str( _complaints['data'][engineers_list.children.index(i)]['complaintid'])
-                #
+                print(_complaints['data'][index])
+                i.text = _complaints['data'][index]['issue']
+                i.secondary_text = str(_complaints['data'][index]['complaintid'])
+
                 rightwidget = i.children[0].children
                 rightwidget[0].icon = "chevron-right"
                 rightwidget[0].theme_text_color = "Custom"
                 rightwidget[0].text_color = self.theme_cls.primary_color
-                rightwidget[0].on_release = lambda data=_complaints['data'][engineers_list.children.index(i)] : _show_dialog(data)
+                rightwidget[0].on_release = lambda data=_complaints['data'][index]: _show_dialog(data)
 
-                #
                 leftwidget = i.children[1].children
-                leftwidget[0].icon = "clock" if _complaints['data'][engineers_list.children.index(i)]['status'] == 'open' else "check-circle-outline" if _complaints['data'][engineers_list.children.index(i)]['status'] == 'closed' else "close-circle-outline"
-                # print(i.text,i.secondary_text,i.children[1].children)
+                leftwidget[0].icon = "clock" if _complaints['data'][index]['status'] == 'open' else "check-circle-outline" if _complaints['data'][index]['status'] == 'closed' else "close-circle-outline"
+                global _modal_issue
+                #
+                # _instance = i
+                # _complaint_id = _complaints['data'][index]['complaintid']
+                # _code = _modal_issue.content_cls.children[0].text if _modal_issue.content_cls.children[0].text else 'CANCELED'
+                i.complaint_id = _complaints['data'][index]['complaintid']
+                # _modal_issue.buttons[1].on_release = lambda _instance=i, complaint_id=_complaints['data'][index]['complaintid'], _code=_modal_issue.content_cls.children[0].text if _modal_issue.content_cls.children[0].text else 'CANCELED': _close_complaint(_instance, complaint_id, _code)
+                leftwidget[0].on_release = lambda _instance=i,_issue=_complaints['data'][index]['issue'] : open_modal_issue(_instance,_issue=_issue)
+
+                def open_modal_issue(_instance,_issue):
+                    # _modal_issue.children[0].children[0].children[0].children[0].on_release = lambda index=i.index:print(index)
+                    _modal_issue.title = f'Do you want to close the complaint ?\n{_issue[:20]}...'
+                    _modal_issue.children[0].children[0].children[0].children[0].on_release = lambda _instance=_instance, _complaint_id=_instance.complaint_id, : _close_complaint(_instance=_instance, _complaint_id=_complaint_id, _code=_modal_issue.content_cls.children[0].text if _modal_issue.content_cls.children[0].text else 'CANCELED')
+                    _modal_issue.open()
 
             #     engineers_list.add_widget(OneLineListItem(text=f"Item {i}"))
 
             _modal.dismiss()
         # _query()
         Clock.schedule_once(lambda x:threading.Thread(target=_query).start(),0.5)
-    
+
     # def render_engineers(self):
     #     # self.root.get_screen("admin_dashboard").ids.engineers_list
     #     def _query():
@@ -566,6 +641,36 @@ class AdminDashboardApp(MDApp):
         # 1
         _modal.open()
         Clock.schedule_once(self.refresh_engineers, .1)  # Simulate a delay
+        # 4
+        global _modal_issue
+        # _modal_issue  =   ModalView(size_hint=(.5, .5), auto_dismiss=True, background='', background_color=[1, 1, 1, .5],border=[20,0,0,20])
+        _modal_issue = MDDialog(
+                title="Set backup account",
+                type="custom",
+                content_cls=MDBoxLayout(
+                    MDTextField(
+                        hint_text="",
+                    ),
+                    orientation="vertical",
+                    spacing="12dp",
+                    size_hint_y=None,
+                    height="120dp",
+                ),
+                buttons=[
+                    MDFlatButton(
+                        text="CANCEL",
+                        theme_text_color="Custom",
+                        text_color=self.theme_cls.primary_color,
+                        on_release=lambda x: _modal_issue.dismiss()
+                    ),
+                    MDFlatButton(
+                        text="OK",
+                        theme_text_color="Custom",
+                        text_color=self.theme_cls.primary_color,
+                        
+                    ),
+                ],
+            )
         # 2
         _modal.open()
         self.render_complaints()
@@ -594,6 +699,7 @@ class AdminDashboardApp(MDApp):
                     ],
                 )
         self._dialog.open()
+        
         # Force garbage collection
         gc.collect()
     def on_stop(self):
