@@ -246,7 +246,7 @@ class AdminDashboardApp(MDApp):
         from kivy.uix.modalview import ModalView
         from kivymd.uix.spinner import MDSpinner
         global _modal
-        _modal  =   ModalView(size_hint=(.5, .5), auto_dismiss=True, background='', background_color=[0, 0, 0, 0])
+        _modal  =   ModalView(size_hint=(.5, .5), auto_dismiss=False, background='', background_color=[0, 0, 0, 0])
         _modal.add_widget(MDSpinner(size_hint=(None, None), size=(46, 46), pos_hint={'center_x': .5, 'center_y': .5},active=True))  # Load and play the GIF
     
     def __init__(self, **kwargs):
@@ -306,7 +306,7 @@ class AdminDashboardApp(MDApp):
                 _complaints = requests.get(url=server_url+"get_all", params={"table_name": "issues"}).json()
                 print(_complaints)
             except Exception as e:
-                Clock.schedule_once(lambda dt: toast('You are offlline'),0.5)
+                Clock.schedule_once(lambda dt: toast('You are offlline',duration=1),0.5)
                 Clock.schedule_once(lambda dt: _modal.dismiss() ,1)
                 return
             # if response contains issues ->
@@ -324,6 +324,7 @@ class AdminDashboardApp(MDApp):
             def _close_complaint(_instance,_complaint_id,_code):
                 global _modal
                 Clock.schedule_once(lambda x:_modal.open(),0.1)
+                _modal_issue.dismiss()
                 print('from CLOSE-COMPLAINT ',_instance,_complaint_id,_code)
                 # print(_modal_issue.children[0].children[0].children[0].children[0].text)
                 def _query():
@@ -341,14 +342,17 @@ class AdminDashboardApp(MDApp):
                     _modal.dismiss()
                     try:
                         # if response contains issues ->
-                        if _complaints["code"] == "success": print('complaint closed')
+                        if _complaints["code"] == "success": 
+                            Clock.schedule_once(lambda dt: toast('complaint closed',duration=1),0.5)
+                            # refresh the complaints
+                            self.render_complaints()
                             # Clock.schedule_once(lambda x:_add_complaints(), 0.1)
                         elif _complaints["detail"] == "Complaint not found":
                             Clock.schedule_once(lambda dt: toast("Complaint not found" , duration=1), 0.5)
                     except Exception as e:
                         print(e)
                         Clock.schedule_once(lambda dt: toast("Error closing complaint" , duration=1), 0.5)
-                # threading.Thread(target=_query).start()
+                threading.Thread(target=_query).start()
             
             def _show_dialog(_issue_data):
                 self._dialog.title = f"Complaint {_issue_data['complaintid']}"
@@ -624,13 +628,14 @@ class AdminDashboardApp(MDApp):
                 _engineers = requests.post(url=server_url+"add_engineer", json={"name": str(name_), "availability": True}).json()
                 print(_engineers)
             except Exception as e:
-                Clock.schedule_once(lambda dt: toast('You are offlline'),0.5)
+                Clock.schedule_once(lambda dt: toast('You are offlline',duration=1),0.5)
                 Clock.schedule_once(lambda dt: _modal.dismiss() ,1)
                 return
             
             global _modal
             _modal.open()
             if _engineers['code'] == 'success':
+                Clock.schedule_once(lambda dt: toast('engineer added sucessfully',duration=1),0.5)
                 # add to the list
                 _modal.open()
                 Clock.schedule_once(self.refresh_engineers, .3)  # Simulate a delay
@@ -729,12 +734,54 @@ class AdminDashboardApp(MDApp):
                 _engineers = requests.get(url=server_url+"get_all", params={"table_name": "service_engineers"}).json()
                 print(_engineers)
             except Exception as e:
-                Clock.schedule_once(lambda dt: toast('You are offlline'),0.5)
+                Clock.schedule_once(lambda dt: toast('You are offlline',duration=1),0.5)
                 Clock.schedule_once(lambda dt: _modal.dismiss() ,1)
                 return
             # if response contains issues ->
             if _engineers:
+                print('from refresh_engineers',_engineers)
                 Clock.schedule_once(lambda x:_add_engineers(), 0.1)
+        
+        def delete_engineer(_name:str,_instance):
+            global _modal_issue
+            _modal_issue.dismiss()
+            global _modal
+            Clock.schedule_once(lambda x:_modal.open(),0.1)
+            print(_name)
+            # clear the list-instance-widget
+            _instance.text = ''
+            _instance.secondary_text = ''
+            _instance.children[0].children[0].icon = ''
+            _instance.children[1].children[0].icon = ''
+            # unbind the on_release event
+            _instance.children[0].children[0].on_release = lambda : None
+            _instance.children[1].children[0].on_release = lambda : None
+            #
+            _instance.parent.remove_widget(_instance)
+            # make query to get all engineers
+            def _query():
+                import requests
+                from kivy.clock import Clock
+                from kivymd.toast import toast
+                import time
+                server_url = "http://chat-app.fudemy.me/"
+                global _engineers
+                try:
+                    print(server_url)
+                    time.sleep(1) # simulate a delay | blocks main thread
+                    _engineers = requests.delete(url=server_url+"delete_engineer", params={"engineer_name": _name}).json()
+                    print(_engineers)
+                except Exception as e:
+                    Clock.schedule_once(lambda dt: toast('You are offlline',duration=1),0.5)
+                    Clock.schedule_once(lambda dt: _modal.dismiss() ,1)
+                    _modal.dismiss()
+                    return
+                # if response contains issues ->
+                if _engineers["code"] == "success":
+                    Clock.schedule_once(lambda dt: toast('Engineer Deleted Sucessfully',duration=1),0.5)
+                    Clock.schedule_once(lambda dt:self.refresh_engineers(dt=dt), 0.1)
+            threading.Thread(target=_query).start()
+
         def _add_engineers():
             global _modal
             # 
@@ -756,26 +803,35 @@ class AdminDashboardApp(MDApp):
                     )
                     print('added new to list')
 
-            for i in engineers_list.children:
-                print(engineers_list.children.index(i))
-                i.theme_text_color = "Custom"
-                i.text_color = self.theme_cls.primary_color
-                i.text = _engineers['data'][engineers_list.children.index(i)]['name']
-                i.secondary_text = str('busy with a complaint' if not _engineers['data'][engineers_list.children.index(i)]['availability'] else 'available')
-                #
-                rightwidget = i.children[0].children
-                rightwidget[0].icon = "home" if _engineers['data'][engineers_list.children.index(i)]['availability'] else "briefcase"
-                rightwidget[0].theme_text_color = "Custom"
-                rightwidget[0].text_color = 'green' if _engineers['data'][engineers_list.children.index(i)]['availability'] else 'orange'
-                rightwidget[0].on_release = lambda : _modal.open()
-                #
-                leftwidget = i.children[1].children
-                leftwidget[0].icon = "account-hard-hat"
-                leftwidget[0].theme_text_color = "Custom"
-                leftwidget[0].text_color = 'green' if _engineers['data'][engineers_list.children.index(i)]['availability'] else 'orange'
+            try:
+                for i in engineers_list.children:
+                    print(engineers_list.children.index(i))
+                    i.theme_text_color = "Custom"
+                    i.text_color = self.theme_cls.primary_color
+                    i.text = _engineers['data'][engineers_list.children.index(i)]['name']
+                    i.secondary_text = str('busy with a complaint' if not _engineers['data'][engineers_list.children.index(i)]['availability'] else 'available')
+                    #
+                    rightwidget = i.children[0].children
+                    rightwidget[0].icon = "home" if _engineers['data'][engineers_list.children.index(i)]['availability'] else "briefcase"
+                    rightwidget[0].theme_text_color = "Custom"
+                    rightwidget[0].text_color = 'green' if _engineers['data'][engineers_list.children.index(i)]['availability'] else 'orange'
+                    rightwidget[0].on_release = lambda : _modal.open()
+                    #
+                    leftwidget = i.children[1].children
+                    leftwidget[0].icon = "account-hard-hat"
+                    leftwidget[0].theme_text_color = "Custom"
+                    leftwidget[0].text_color = 'green' if _engineers['data'][engineers_list.children.index(i)]['availability'] else 'orange'
+                    leftwidget[0].on_release = lambda _instance = i, x=_engineers['data'][engineers_list.children.index(i)]['name'] : open_modal_engineer(_name=x,_instance=_instance)
+                
+                def open_modal_engineer(_instance,_name):
+                    # _modal_issue.children[0].children[0].children[0].children[0].on_release = lambda index=i.index:print(index)
+                    _modal_issue.title = f'Do you want to delete engineer ?\n{_name[:20]}...'
+                    _modal_issue.children[0].children[0].children[0].children[0].on_release = lambda name=_name : delete_engineer(_name=name,_instance=_instance)
+                    _modal_issue.open()
 
-                # print(i.text,i.secondary_text,i.children[1].children)
-
+                    # print(i.text,i.secondary_text,i.children[1].children)
+            except Exception as e:
+                print(e)
             #     engineers_list.add_widget(OneLineListItem(text=f"Item {i}"))
 
             _modal.dismiss()
