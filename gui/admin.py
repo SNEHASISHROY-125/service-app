@@ -717,7 +717,8 @@ class AdminDashboardApp(MDApp):
 
     def on_resume(self):
         # Restore any data or state when the app resumes.
-        pass
+        # Force a redraw
+        self.root.canvas.ask_update()
     
     def refresh_engineers(self, dt):
         # self.root.ids.refresh_scroll.refreshing = False
