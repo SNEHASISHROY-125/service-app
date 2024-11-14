@@ -237,6 +237,7 @@ class AdminDashboardApp(MDApp):
     _dialog = None
     global _modal_issue
     _modal_issue = None
+    global _modal_confirm
 
     def build(self):
         self.theme_cls.primary_palette = "Blue"
@@ -362,16 +363,24 @@ class AdminDashboardApp(MDApp):
                 _items_list = self._dialog.children[0].children[2].children[0].children
                 print(self._dialog.children[0].children[2].children[0].children[0].source)
                 _payments_receipt = _items_list[0]
+                _payments_receipt.source = "https://img.icons8.com/stickers/50/cash-in-hand.png"
                 _location = _items_list[1]
+                _location.source = "https://img.icons8.com/arcade/64/marker.png"
                 _esttime = _items_list[2]
+                _esttime.source = "https://img.icons8.com/external-flaticons-flat-flat-icons/64/external-time-100-most-used-icons-flaticons-flat-flat-icons-2.png"
                 _user_id = _items_list[3]
+                _user_id.source = "https://img.icons8.com/cotton/100/guest-male.png"
                 _phone = _items_list[4]
+                _phone.source = "https://img.icons8.com/pulsar-gradient/48/ringer-volume.png"
                 _name = _items_list[5]
+                _name.source = "https://img.icons8.com/3d-fluency/94/worker-male--v1.png"
                 _status = _items_list[6]
                 _complaintid = _items_list[7]
+                _complaintid.source = "https://img.icons8.com/emoji/48/id-button-emoji.png" # "https://img.icons8.com/pulsar-color/48/instagram-verification-badge.png"
                 _issue = _items_list[8]
+                _issue.source = "https://img.icons8.com/external-gradients-pongsakorn-tan/64/external-audit-gdpr-gradients-pongsakorn-tan.png"
                 #  set status icon
-                _status.source="https://cdn.iconscout.com/icon/free/png-256/doctor-1851563-1569282.png" if _issue_data['status'] == 'open' else "https://img.icons8.com/color/240/ok--v1.png" if _issue_data['status'] == 'closed' else "https://img.icons8.com/color/240/close-sign.png"
+                _status.source="https://img.icons8.com/3d-fluency/94/sand-clock-1.png" if _issue_data['status'] == 'open' else "https://img.icons8.com/color/240/ok--v1.png" if _issue_data['status'] == 'closed' else "https://img.icons8.com/keek/100/delete-sign.png"
                 # set values
                 _payments_receipt.text = not_none(str(_issue_data['payments_receipt']))
                 _location.text = not_none(_issue_data['location'])
@@ -706,7 +715,44 @@ class AdminDashboardApp(MDApp):
                         ),
                     ],
                 )
-        self._dialog.open()
+        # self._dialog.open()
+        # 5
+        # bind if the user enters a 6 digit password that matches 869421 then dissmiss the modal
+        def validate_password():
+            global _modal_confirm
+            print(_modal_confirm.content_cls.children[0].text , type(_modal_confirm.content_cls.children[0].text))
+
+            if str(_modal_confirm.content_cls.children[0].text) == str(369421):
+                Clock.schedule_once(lambda dt: toast("Login sucess",duration=1),0.1)
+                _modal_confirm.dismiss()
+            else:
+                Clock.schedule_once(lambda dt: toast("Incorrect password",duration=1),0.1)
+        global _modal_confirm
+        # _modal_issue  =   ModalView(size_hint=(.5, .5), auto_dismiss=True, background='', background_color=[1, 1, 1, .5],border=[20,0,0,20])
+        _modal_confirm = MDDialog(
+                title='Enter Admin Password',
+                type="custom",
+                auto_dismiss=False,
+                content_cls=MDBoxLayout(
+                    MDTextField(
+                        hint_text="",
+                        max_text_length=6,
+                    ),
+                    orientation="vertical",
+                    spacing="12dp",
+                    size_hint_y=None,
+                    height="120dp",
+                ),
+                buttons=[
+                    MDFlatButton(
+                        text="OK",
+                        theme_text_color="Custom",
+                        text_color=self.theme_cls.primary_color,
+                        on_release=lambda x: validate_password()
+                    ),
+                ],
+            )
+        _modal_confirm.open()
         
         # Force garbage collection
         gc.collect()
