@@ -24,6 +24,9 @@ from kivymd.uix.dialog import MDDialog
 from kivymd.uix.list import OneLineAvatarListItem
 from kivy.properties import BooleanProperty, ObjectProperty
 
+from kivy.config import Config
+Config.set('kivy', 'pause_on_minimize', '1')
+
 
 '''
 admin dashboard
@@ -707,13 +710,13 @@ class AdminDashboardApp(MDApp):
         
         # Force garbage collection
         gc.collect()
-    def on_stop(self):
-        pass
 
     def on_pause(self):
-        pass
+        # Save any necessary state data or suspend operations here.
+        return True  # Return True to indicate we’re handling the pause.
 
     def on_resume(self):
+        # Restore any data or state when the app resumes.
         pass
     
     def refresh_engineers(self, dt):
