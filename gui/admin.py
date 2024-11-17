@@ -27,6 +27,14 @@ from kivy.properties import BooleanProperty, ObjectProperty
 from kivy.config import Config
 Config.set('kivy', 'pause_on_minimize', '1')
 
+from kivymd.toast import toast as tst
+from kivy.utils import platform
+
+def toast(text:str, duration=1.0):
+    if platform == 'android':
+        tst(text, duration)
+    else:
+        tst(text, duration=duration)
 
 '''
 admin dashboard
@@ -116,7 +124,6 @@ MDScreenManager:
                         icon: "plus"
                         pos_hint: {"center_x": .7, "center_y": .1}
                         on_release: app.add_engineer()
-                            
 
 
             MDBottomNavigationItem:
@@ -281,7 +288,7 @@ class AdminDashboardApp(MDApp):
         #                 text="OK",
         #                 theme_text_color="Custom",
         #                 text_color=self.theme_cls.primary_color,
-                        
+                 
         #             ),
         #         ],
         #     )
@@ -310,7 +317,7 @@ class AdminDashboardApp(MDApp):
                 _complaints = requests.get(url=server_url+"get_all", params={"table_name": "issues"}).json()
                 print(_complaints)
             except Exception as e:
-                Clock.schedule_once(lambda dt: toast('You are offlline',duration=1),0.5)
+                Clock.schedule_once(lambda dt: toast('You are offlline',1),0.5)
                 Clock.schedule_once(lambda dt: _modal.dismiss() ,1)
                 return
             # if response contains issues ->
@@ -340,22 +347,22 @@ class AdminDashboardApp(MDApp):
                         _complaints = requests.delete(url=server_url+f"close_complaint/{_complaint_id}", params={"code": _code}).json()
                         print(_complaints)
                     except Exception as e:
-                        Clock.schedule_once(lambda dt: toast('You are offlline', duration=1),0.5)
+                        Clock.schedule_once(lambda dt: toast('You are offlline', 1),0.5)
                         Clock.schedule_once(lambda dt: _modal.dismiss() ,1)
                         return
                     _modal.dismiss()
                     try:
                         # if response contains issues ->
                         if _complaints["code"] == "success": 
-                            Clock.schedule_once(lambda dt: toast('complaint closed',duration=1),0.5)
+                            Clock.schedule_once(lambda dt: toast('complaint closed',1),0.5)
                             # refresh the complaints
                             self.render_complaints()
                             # Clock.schedule_once(lambda x:_add_complaints(), 0.1)
                         elif _complaints["detail"] == "Complaint not found":
-                            Clock.schedule_once(lambda dt: toast("Complaint not found" , duration=1), 0.5)
+                            Clock.schedule_once(lambda dt: toast("Complaint not found" , 1), 0.5)
                     except Exception as e:
                         print(e)
-                        Clock.schedule_once(lambda dt: toast("Error closing complaint" , duration=1), 0.5)
+                        Clock.schedule_once(lambda dt: toast("Error closing complaint" , 1), 0.5)
                 threading.Thread(target=_query).start()
             
             def _show_dialog(_issue_data):
@@ -640,14 +647,14 @@ class AdminDashboardApp(MDApp):
                 _engineers = requests.post(url=server_url+"add_engineer", json={"name": str(name_), "availability": True}).json()
                 print(_engineers)
             except Exception as e:
-                Clock.schedule_once(lambda dt: toast('You are offlline',duration=1),0.5)
+                Clock.schedule_once(lambda dt: toast('You are offlline',1),0.5)
                 Clock.schedule_once(lambda dt: _modal.dismiss() ,1)
                 return
             
             global _modal
             _modal.open()
             if _engineers['code'] == 'success':
-                Clock.schedule_once(lambda dt: toast('engineer added sucessfully',duration=1),0.5)
+                Clock.schedule_once(lambda dt: toast('engineer added sucessfully',1),0.5)
                 # add to the list
                 _modal.open()
                 Clock.schedule_once(self.refresh_engineers, .3)  # Simulate a delay
@@ -723,10 +730,10 @@ class AdminDashboardApp(MDApp):
             print(_modal_confirm.content_cls.children[0].text , type(_modal_confirm.content_cls.children[0].text))
 
             if str(_modal_confirm.content_cls.children[0].text) == str(369421):
-                Clock.schedule_once(lambda dt: toast("Login sucess",duration=1),0.1)
+                Clock.schedule_once(lambda dt: toast("Login sucess",1),0.1)
                 _modal_confirm.dismiss()
             else:
-                Clock.schedule_once(lambda dt: toast("Incorrect password",duration=1),0.1)
+                Clock.schedule_once(lambda dt: toast("Incorrect password",1),0.1)
         global _modal_confirm
         # _modal_issue  =   ModalView(size_hint=(.5, .5), auto_dismiss=True, background='', background_color=[1, 1, 1, .5],border=[20,0,0,20])
         _modal_confirm = MDDialog(
@@ -784,7 +791,7 @@ class AdminDashboardApp(MDApp):
                 _engineers = requests.get(url=server_url+"get_all", params={"table_name": "service_engineers"}).json()
                 print(_engineers)
             except Exception as e:
-                Clock.schedule_once(lambda dt: toast('You are offlline',duration=1),0.5)
+                Clock.schedule_once(lambda dt: toast('You are offlline',1),0.5)
                 Clock.schedule_once(lambda dt: _modal.dismiss() ,1)
                 return
             # if response contains issues ->
@@ -822,13 +829,13 @@ class AdminDashboardApp(MDApp):
                     _engineers = requests.delete(url=server_url+"delete_engineer", params={"engineer_name": _name}).json()
                     print(_engineers)
                 except Exception as e:
-                    Clock.schedule_once(lambda dt: toast('You are offlline',duration=1),0.5)
+                    Clock.schedule_once(lambda dt: toast('You are offlline',1),0.5)
                     Clock.schedule_once(lambda dt: _modal.dismiss() ,1)
                     _modal.dismiss()
                     return
                 # if response contains issues ->
                 if _engineers["code"] == "success":
-                    Clock.schedule_once(lambda dt: toast('Engineer Deleted Sucessfully',duration=1),0.5)
+                    Clock.schedule_once(lambda dt: toast('Engineer Deleted Sucessfully',1),0.5)
                     Clock.schedule_once(lambda dt:self.refresh_engineers(dt=dt), 0.1)
             threading.Thread(target=_query).start()
 

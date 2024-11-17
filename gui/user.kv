@@ -1,0 +1,285 @@
+#:kivy 2.1.0
+
+MDScreenManager:
+    MenuScreen:
+    BookApointmentScreen:
+    WelcomeScreen:
+    LoginScreen:
+    VerifyOTPScreen:
+    SignupScreen:
+
+<Item>
+
+    ImageLeftWidget:
+        source: root.source
+
+<TwoLineAvatarIconListItem>
+    complaint_id: root.complaint_id
+
+<MenuScreen@Screen>:
+    name: "services"
+
+    BoxLayout:
+        orientation: "vertical"
+        MDTopAppBar:
+            id: top_app_bar
+            title: "All Services"
+            pos_hint: {"top": 1.0}
+
+        MDBottomNavigation:
+            id: bottom_nav
+            on_switch_tabs: app.on_tab_switch(*args)
+
+            MDBottomNavigationItem:
+                name: 'services_tab'
+                text: "services"
+                icon: "home"
+                badge_icon: ""
+                icon_color: app.theme_cls.primary_color
+                
+                BoxLayout:
+                    orientation: 'vertical'
+                    padding: dp(10)
+
+            
+                    MDBoxLayout:
+                        orientation: 'vertical'
+                        padding: dp(10)
+                        spacing: dp(10)
+                        
+                        md_bg_color: 0.9, 0.7, 0.9, 1
+                        radius: [15, 15, 15, 15]
+                    
+                        MDBoxLayout:
+                            orientation: 'horizontal'
+                            
+                            spacing: dp(10)
+                    
+                            MDSmartTile:
+                                radius: 24
+                                box_radius: [0, 0, 24, 24]
+                                box_color: 1, 1, 1, .3
+                                source: "https://static9.depositphotos.com/1518767/1119/i/450/depositphotos_11193992-stock-photo-smiling-assistant-using-a-headset.jpg"
+                                pos_hint: {"center_x": .5, "center_y": .5}
+                                on_release: app.root.current = 'book_apointment'
+                                
+                                MDLabel:
+                                    text: "IT Service"
+                                    halign: 'center'
+                                    bold: True
+                                    color: 1, 1, 1, 1
+                                
+                            MDSmartTile:
+                                radius: 24
+                                box_radius: [0, 0, 24, 24]
+                                box_color: 1, 1, 1, .2
+                                source: "https://thumbs.dreamstime.com/b/electronics-repair-service-hands-senior-tech-reparing-electronic-circuit-43452823.jpg"
+                                pos_hint: {"center_x": .5, "center_y": .5}
+
+                                MDLabel:
+                                    text: "Electronics Repair Service"
+                                    halign: 'center'
+                                    bold: True
+                                    color: 1, 1, 1, 1
+                        
+                        
+                        MDBoxLayout:
+                            orientation: 'horizontal'
+                            
+                            spacing: dp(10)
+                    
+                            MDSmartTile:
+                                radius: 24
+                                box_radius: [0, 0, 24, 24]
+                                box_color: 1, 1, 1, .3
+                                source: "https://t3.ftcdn.net/jpg/02/77/69/26/360_F_277692690_xAGq27kZEjCmDq8D3lcttSjM6IeUVgKI.jpg"
+                                pos_hint: {"center_x": .5, "center_y": .5}
+                                on_release: 
+                                
+                                MDLabel:
+                                    text: "Plumbing Service"
+                                    halign: 'center'
+                                    bold: True
+                                    color: 1, 1, 1, 1
+                            MDSmartTile:
+                                radius: 24
+                                box_radius: [0, 0, 24, 24]
+                                box_color: 1, 1, 1, .3
+                                source: "https://t3.ftcdn.net/jpg/02/77/69/26/360_F_277692690_xAGq27kZEjCmDq8D3lcttSjM6IeUVgKI.jpg"
+                                pos_hint: {"center_x": .5, "center_y": .5}
+                                on_release: 
+                                
+                                MDLabel:
+                                    text: "Electrical Service"
+                                    halign: 'center'
+                                    bold: True
+                                    color: 1, 1, 1, 1
+                
+
+            MDBottomNavigationItem:
+                name: 'appointments_tab'
+                text: 'Appointments'
+                icon: "new-box"
+                badge_icon: "numeric-2"
+                icon_color: app.theme_cls.primary_color
+
+                BoxLayout:
+                    orientation: 'vertical'
+                    
+                    ScrollView:
+                        do_scroll_x: False
+                        MDList:
+                            id: appointments_list
+
+                            TwoLineAvatarIconListItem:
+                                text: "Two-line item with avatar"
+                                secondary_text: "Secondary text here"
+
+                                IconLeftWidget:
+                                    icon: "clock"
+
+                                IconRightWidget:
+                                    icon: "chevron-right"
+                            
+                            TwoLineAvatarIconListItem:
+                                text: "Two-line item with avatar"
+                                secondary_text: "Secondary text here"
+
+                                IconLeftWidget:
+                                    icon: "close-circle-outline"
+
+                                IconRightWidget:
+                                    icon: "chevron-right"
+
+
+<BookApointmentScreen@MDScreen>:
+    name: 'book_apointment'
+    BoxLayout:
+        orientation: 'vertical'
+        spacing: dp(20)
+
+        MDTopAppBar:
+            pos_hint: {'top': 1}
+            title: "Book Apointment"
+            left_action_items: [["arrow-left", lambda x: setattr(app.root, 'current', 'services')]]
+
+        
+        MDBoxLayout:
+            # pos_hint: {'center_x': 0.5, 'center_y': 0.3}
+            # size_hint: 0.8, 0.8
+            padding: dp(20)
+            md_bg_color: 0.9, 0.7, 0.9, 1
+            radius: [30, 30, 15, 15]
+            orientation: 'vertical'
+                                   
+            ScrollView:
+                do_scroll_x: False
+                MDList:
+                    spacing: dp(20)
+                    
+                    MDTextField:
+                        id: issue_desc
+                        hint_text: "Tell us a little about your issue"
+                        multiline: True
+                        max_text_length: 250
+                        mode: "rectangle"
+                        helper_text: "we need to know what you are facing"
+                        helper_text_mode: "on_error"
+                        size_hint_y: None
+                        height: dp(150)
+                        
+                    MDTextField:
+                        id: user_location
+                        hint_text: "Your home Location/Address"
+                        max_text_length: 50
+                        mode: "rectangle"
+                        helper_text: "we need to know where you are"
+                        helper_text_mode: "on_focus"
+
+                    MDTextField:
+                        id: user_phone
+                        hint_text: "Your phone number"
+                        max_text_length: 10
+                        mode: "rectangle"
+                        helper_text: "our team will contact you"
+                        helper_text_mode: "on_focus"
+               
+
+                    MDRaisedButton:
+                        text: "Book Apointment"
+                        on_release: app.book_appointment({"issue_desc": issue_desc.text, "user_location": user_location.text, "user_phone": user_phone.text})
+
+
+<WelcomeScreen@Screen>:
+    name: 'welcome'
+    MDLabel:
+        text: "Welcome to the Welcome Page!"
+        halign: 'center'
+        pos_hint: {'center_x': 0.5, 'center_y': 0.5}
+    MDRaisedButton:
+        text: "Go to Signup"
+        pos_hint: {'center_x': 0.5, 'center_y': 0.4}
+        on_release: app.root.current = 'signup'
+
+<LoginScreen@Screen>:
+    name: 'login'
+    MDTextField:
+        id: email
+        hint_text: "Email"
+        pos_hint: {'center_x': 0.5, 'center_y': 0.4}
+        size_hint_x: None
+        width: 300
+    MDRaisedButton: 
+        text: "Login"
+        pos_hint: {'center_x': 0.5, 'center_y': 0.4}
+        on_release: app.login()
+
+<VerifyOTPScreen@Screen>:
+    name: 'verify_otp'
+    MDTextField:
+        id: otp
+        hint_text: "ENTER OTP SENT TO YOUR EMAIL"
+        pos_hint: {'center_x': 0.5, 'center_y': 0.4}
+        size_hint_x: None
+        width: 300
+    MDRaisedButton:
+        text: "Verify OTP"
+        pos_hint: {'center_x': 0.5, 'center_y': 0.4}
+        on_release: app.verify_otp()
+
+<SignupScreen@Screen>:
+    name: 'signup'
+
+    MDBoxLayout:
+        orientation: 'vertical'
+        spacing: dp(10)
+        MDTopAppBar: 
+            id: top_app_bar
+            anchor_title: "left"
+            title: "Menu Screen"
+            left_action_items: [["arrow-left", lambda x: setattr(app.root, 'current', "services")]]
+            elevation: 10
+            
+        MDFloatLayout:
+            pos_hint: {'center_x': 0.5, 'center_y': 0.8}
+
+            MDTextField:
+                id: username
+                hint_text: "Username"
+                pos_hint: {'center_x': 0.5, 'center_y': 0.6}
+                size_hint_x: None
+                width: 300
+            MDTextField:
+                id: email
+                hint_text: "Email"
+                pos_hint: {'center_x': 0.5, 'center_y': 0.5}
+                size_hint_x: None
+                width: 300
+            MDRaisedButton:
+                text: "Signup"
+                pos_hint: {'center_x': 0.5, 'center_y': 0.4}
+                on_release: app.signup()
+            MDRaisedButton:
+                text: "Go to Home"
+                pos_hint: {'center_x': 0.5, 'center_y': 0.3}
+                on_release: app.switch_to_home()

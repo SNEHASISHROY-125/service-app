@@ -13,10 +13,10 @@ import threading , time
 KV = '''
 ScreenManager:
     id: screen_manager
+    MenuScreen:
     BookApointmentScreen:
     LoginScreen:
     SignupScreen:
-    MenuScreen:
     MyAppointmentsScreen:
     WelcomeScreen:
     HomeScreen:
@@ -172,8 +172,7 @@ ScreenManager:
                         box_color: 1, 1, 1, .2
                         source: "https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2F2.bp.blogspot.com%2F-8DL1_7b-4h4%2FUhNloO6amvI%2FAAAAAAAAAcU%2Fj-ZgMSBMmg4%2Fs1600%2Flord%2Bkrishna%2Bfull%2Bscreen%2Bwallpaper.jpg&f=1&nofb=1&ipt=8360efe24ba6ad51243d6ddcd7de06f98374a6e83945c8e44a35146aa3ca7a77&ipo=images"
                         pos_hint: {"center_x": .5, "center_y": .5}
-                        
-                    
+                 
                 
                 MDBoxLayout:
                     orientation: 'horizontal'
@@ -193,61 +192,60 @@ ScreenManager:
 
 <BookApointmentScreen@Screen>:
     name: 'book_apointment'
-    
-
-    MDTopAppBar:
-        pos_hint: {'top': 1}
-        title: "Book Apointment"
-        left_action_items: [["arrow-left", lambda x: setattr(app.root, 'current', 'menu')]]
-
-    
-    MDFloatLayout:
-        pos_hint: {'center_x': 0.5, 'center_y': 0.3}
-        size_hint: 0.8, 0.8
-        md_bg_color: 0.9, 0.7, 0.9, 1
-        radius: [30, 30, 15, 15]
+    BoxLayout:
         orientation: 'vertical'
+        spacing: dp(20)
+
+        MDTopAppBar:
+            pos_hint: {'top': 1}
+            title: "Book Apointment"
+            left_action_items: [["arrow-left", lambda x: setattr(app.root, 'current', 'menu')]]
+
         
         MDBoxLayout:
-            orientation: 'vertical'
+            # pos_hint: {'center_x': 0.5, 'center_y': 0.3}
+            # size_hint: 0.8, 0.8
             padding: dp(20)
-            spacing: dp(20)
-            
-            pos_hint: {'center_x': 0.5, 'center_y': 0.75}
+            md_bg_color: 0.9, 0.7, 0.9, 1
+            radius: [30, 30, 15, 15]
+            orientation: 'vertical'
+                                   
+            ScrollView:
+                do_scroll_x: False
+                MDList:
+                    spacing: dp(20)
+                    
+                    MDTextField:
+                        id: issue_desc
+                        hint_text: "Tell us a little about your issue"
+                        multiline: True
+                        max_text_length: 250
+                        mode: "rectangle"
+                        helper_text: "we need to know what you are facing"
+                        helper_text_mode: "on_error"
+                        size_hint_y: None
+                        height: dp(150)
+                        
+                    MDTextField:
+                        id: user_location
+                        hint_text: "Your home Location/Address"
+                        max_text_length: 50
+                        mode: "rectangle"
+                        helper_text: "we need to know where you are"
+                        helper_text_mode: "on_focus"
 
-            
-            MDTextField:
-                id: issue_desc
-                hint_text: "Tell us a little about your issue"
-                multiline: True
-                max_text_length: 250
-                mode: "rectangle"
-                helper_text: "we need to know what you are facing"
-                helper_text_mode: "on_error"
-                size_hint_y: None
-                height: dp(150)
-                
-            MDTextField:
-                id: user_location
-                hint_text: "Your home Location/Address"
-                max_text_length: 50
-                mode: "rectangle"
-                helper_text: "we need to know where you are"
-                helper_text_mode: "on_focus"
+                    MDTextField:
+                        id: user_phone
+                        hint_text: "Your phone number"
+                        max_text_length: 10
+                        mode: "rectangle"
+                        helper_text: "our team will contact you"
+                        helper_text_mode: "on_focus"
+               
 
-            MDTextField:
-                id: user_phone
-                hint_text: "Your phone number"
-                max_text_length: 10
-                mode: "rectangle"
-                helper_text: "our team will contact you"
-                helper_text_mode: "on_focus"
-
-            
-                
-            MDRaisedButton:
-                text: "Book Apointment"
-                on_release: app.book_appointments({'complaint-id': '#56608' ,'attd-name': 'NAME_', 'time': '12:00 PM', 'status': 'pending'})
+                    MDRaisedButton:
+                        text: "Book Apointment"
+                        on_release: app.book_appointments({'complaint-id': '#56608' ,'attd-name': 'NAME_', 'time': '12:00 PM', 'status': 'pending'})
 
 <MyAppointmentsScreen@Screen>:
     name: 'my_apointments'
