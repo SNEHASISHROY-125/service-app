@@ -6,9 +6,13 @@ from kivymd.uix.list import TwoLineAvatarIconListItem, OneLineAvatarListItem, Ic
 from kivymd.uix.dialog import MDDialog
 import kivymd.utils.asynckivy as ak
 from kivymd.uix.button import MDFlatButton
+from kivymd.uix.boxlayout import MDBoxLayout
+from kivymd.uix.textfield import MDTextField
+import sql_local as sq_local
 from kivy.lang import Builder
 from kivymd.toast import toast as tst
 from kivy.utils import platform
+from kivy.clock import Clock
 import threading
 from kivy.properties import StringProperty
 
@@ -18,6 +22,10 @@ def toast(text:str, duration=1.0):
     else:
         tst(text, duration=duration)
 
+#
+images = [
+"https://images.pexels.com/photos/3389613/pexels-photo-3389613.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2"
+]
 
 class Item(OneLineAvatarListItem):
     # divider = None
@@ -29,9 +37,16 @@ class TwoLineAvatarIconListItem(TwoLineAvatarIconListItem):
     complaint_id = StringProperty()
 
 class FAPP(MDApp):
-    user_id: str = "0ef59067-6cc5-447a-8d4c-21e50577958d"
+    user_id: str = '' #"0ef59067-6cc5-447a-8d4c-21e50577958d"
+    server_url = "https://chat-app.fudemy.me/"
+    current_screen = ''
+    switch_tab = ''
+    user_name = ''
+    image_list = images
 
     def build(self):
+        self.theme_cls.primary_palette = "Orange"
+        self.theme_cls.primary_hue = "A700" 
         return Builder.load_file('gui/user.kv')
     
     def on_tab_switch(self, instance_tabs, instance_tab, instance_tab_label,):
@@ -41,11 +56,17 @@ class FAPP(MDApp):
         else:
             screen.ids.top_app_bar.title = "All Services"
         print(instance_tab.name)
+
+    def toast(self,text:str, duration=1.0):
+        if platform == 'android':
+            tst(text, duration)
+        else:
+            tst(text, duration=duration) 
     
     def render_appointment(self , *args):
         import requests
         from kivy.clock import Clock
-        from kivymd.toast import toast
+        # from kivymd.toast import toast
         import time
         global _modal
         _modal.open()
@@ -66,7 +87,13 @@ class FAPP(MDApp):
                 Clock.schedule_once(lambda dt: toast('You are offlline',1),0.5)
                 Clock.schedule_once(lambda dt: _modal.dismiss() ,1)
                 return
-            # if response contains issues ->
+            # if response contains no issues ->
+            try:
+                if _complaints["detail"] == "No complaints found for the user":
+                    Clock.schedule_once(lambda dt: toast('No complaints found',1),0.5)
+                    Clock.schedule_once(lambda dt: _modal.dismiss() ,1)
+                    return
+            except Exception as e: print(e)
             if _complaints:
                 Clock.schedule_once(lambda x:_add_complaints(), 0.1)
         def _add_complaints():
@@ -102,7 +129,7 @@ class FAPP(MDApp):
                         if _complaints["code"] == "success": 
                             Clock.schedule_once(lambda dt: toast('complaint closed',1),0.5)
                             # refresh the complaints
-                            self.render_complaints()
+                            self.render_appointment()
                             # Clock.schedule_once(lambda x:_add_complaints(), 0.1)
                         elif _complaints["detail"] == "Complaint not found":
                             Clock.schedule_once(lambda dt: toast("Complaint not found" , 1), 0.5)
@@ -112,7 +139,7 @@ class FAPP(MDApp):
                 threading.Thread(target=_query).start()
             
             def _show_dialog(_issue_data):
-                self._dialog.title = f"Complaint {_issue_data['complaintid']}"
+                self._dialog.title = f"Complaint {_issue_data[4]}"
                 _items_list = self._dialog.children[0].children[2].children[0].children
                 print(self._dialog.children[0].children[2].children[0].children[0].source)
                 _payments_receipt = _items_list[0]
@@ -133,17 +160,17 @@ class FAPP(MDApp):
                 _issue = _items_list[8]
                 _issue.source = "https://img.icons8.com/external-gradients-pongsakorn-tan/64/external-audit-gdpr-gradients-pongsakorn-tan.png"
                 #  set status icon
-                _status.source="https://img.icons8.com/3d-fluency/94/sand-clock-1.png" if _issue_data['status'] == 'open' else "https://img.icons8.com/color/240/ok--v1.png" if _issue_data['status'] == 'closed' else "https://img.icons8.com/keek/100/delete-sign.png"
+                _status.source="https://img.icons8.com/3d-fluency/94/sand-clock-1.png" if _issue_data[8] == 'open' else "https://img.icons8.com/color/240/ok--v1.png" if _issue_data[8] == 'closed' else "https://img.icons8.com/keek/100/delete-sign.png"
                 # set values
-                _payments_receipt.text = not_none(str(_issue_data['payments_receipt']))
-                _location.text = not_none(_issue_data['location'])
-                _esttime.text = not_none(_issue_data['esttime'])
-                _user_id.text = not_none(_issue_data['user_id'])
-                _phone.text = not_none(str(_issue_data['phone']))
-                _name.text = not_none(_issue_data['name'])
-                _status.text = not_none(_issue_data['status'])
-                _complaintid.text = not_none(str(_issue_data['complaintid']))
-                _issue.text = not_none(_issue_data['issue'])
+                _payments_receipt.text = not_none(str(_issue_data[9]))
+                _location.text = not_none(_issue_data[2])
+                _esttime.text = not_none(_issue_data[5])
+                _user_id.text = not_none(_issue_data[7])
+                _phone.text = not_none(str(_issue_data[3]))
+                _name.text = not_none(_issue_data[6])
+                _status.text = not_none(_issue_data[8])
+                _complaintid.text = not_none(str(_issue_data[4]))
+                _issue.text = not_none(_issue_data[1])
                 # print(_payments_receipt,'\n',_location.text,'\n',_esttime,'\n',_user_id,'\n',_phone,'\n',_name,'\n',_status,'\n',_complaintid,'\n',_issue)
                 # release resorces
                 for i in [_payments_receipt, _location, _esttime, _user_id, _phone, _name, _status, _complaintid, _issue]:
@@ -158,8 +185,8 @@ class FAPP(MDApp):
             # engineers_list.clear_widgets()
             # print(engineers_list.children)
             # Logic to match list items with the engineers
-            if len(engineers_list.children) < len(_complaints['complaint_list']):
-                for i in range(len(_complaints['complaint_list']) - len(engineers_list.children)):
+            if len(engineers_list.children) < len(_complaints['complaints_list']):
+                for i in range(len(_complaints['complaints_list']) - len(engineers_list.children)):
                     engineers_list.add_widget(TwoLineAvatarIconListItem(
                         IconLeftWidget(
                         ),
@@ -173,28 +200,29 @@ class FAPP(MDApp):
             for i in engineers_list.children:
                 index = engineers_list.children.index(i)
                 print(index)
+                # 
                 i.theme_text_color = "Custom"
                 i.text_color = self.theme_cls.primary_color
-                print(_complaints['data'][index])
-                i.text = _complaints['data'][index]['issue']
-                i.secondary_text = str(_complaints['data'][index]['complaintid'])
+                print(_complaints['complaints_list'][index])
+                i.text = _complaints['complaints_list'][index][1]
+                i.secondary_text = str(_complaints['complaints_list'][index][4])
 
                 rightwidget = i.children[0].children
                 rightwidget[0].icon = "chevron-right"
                 rightwidget[0].theme_text_color = "Custom"
                 rightwidget[0].text_color = self.theme_cls.primary_color
-                rightwidget[0].on_release = lambda data=_complaints['data'][index]: _show_dialog(data)
+                rightwidget[0].on_release = lambda data=_complaints['complaints_list'][index]: _show_dialog(data)
 
                 leftwidget = i.children[1].children
-                leftwidget[0].icon = "clock" if _complaints['data'][index]['status'] == 'open' else "check-circle-outline" if _complaints['data'][index]['status'] == 'closed' else "close-circle-outline"
+                leftwidget[0].icon = "clock" if _complaints['complaints_list'][index][8] == 'open' else "check-circle-outline" if _complaints['complaints_list'][index][8] == 'closed' else "close-circle-outline"
                 global _modal_issue
                 #
                 # _instance = i
                 # _complaint_id = _complaints['data'][index]['complaintid']
                 # _code = _modal_issue.content_cls.children[0].text if _modal_issue.content_cls.children[0].text else 'CANCELED'
-                i.complaint_id = _complaints['data'][index]['complaintid']
+                i.complaint_id = _complaints['complaints_list'][index][4]
                 # _modal_issue.buttons[1].on_release = lambda _instance=i, complaint_id=_complaints['data'][index]['complaintid'], _code=_modal_issue.content_cls.children[0].text if _modal_issue.content_cls.children[0].text else 'CANCELED': _close_complaint(_instance, complaint_id, _code)
-                leftwidget[0].on_release = lambda _instance=i,_issue=_complaints['data'][index]['issue'] : open_modal_issue(_instance,_issue=_issue)
+                leftwidget[0].on_release = lambda _instance=i,_issue=_complaints['complaints_list'][index][1] : open_modal_issue(_instance,_issue=_issue)
 
                 def open_modal_issue(_instance,_issue):
                     # _modal_issue.children[0].children[0].children[0].children[0].on_release = lambda index=i.index:print(index)
@@ -213,15 +241,28 @@ class FAPP(MDApp):
         global _modal
         _modal.open()
         def _query():
-            # check data is not empty
-          
-            if not data['issue_desc'] or not data['user_location'] or not data['user_phone']:
-                return
             import requests
             from kivy.clock import Clock
             import time
-            server_url = "https://chat-app.fudemy.me/"
+            # check wheather user has any ongoing | open appointment
             global _complaints
+            _complaints = requests.get(url=self.server_url+f"complaint/{self.user_id}/complaint_id").json()
+            try:
+                if _complaints["detail"] =="No complaints found for the user": pass
+            except Exception as e: print(e)
+            if _complaints:
+                for i in _complaints['complaints_list']:
+                    print(i[8])
+                    if i[8] == 'open':
+                        Clock.schedule_once(lambda dt: toast('You have an ongoing appointment',1),0.2)
+                        self.switch_tab = 'appointments_tab'
+                        Clock.schedule_once(lambda dt: self.switch_to_tab(),.5)
+                        Clock.schedule_once(lambda dt: _modal.dismiss() ,1)
+                        return
+            # check data is not empty
+            if not data['issue_desc'] or not data['user_location'] or not data['user_phone']:
+                return
+            server_url = "https://chat-app.fudemy.me/"
             try:
                 print(server_url)
                 time.sleep(1) # simulate a delay | blocks main thread
@@ -232,19 +273,178 @@ class FAPP(MDApp):
                 Clock.schedule_once(lambda dt: _modal.dismiss() ,1)
                 return
             # if response contains issues ->
-            if _complaints:
-                Clock.schedule_once(lambda dt: toast('your appointment booked',1),0.1)
-                Clock.schedule_once(lambda x: self.render_appointment(), 0.1)
-                #
-                Clock.schedule_once(lambda x: setattr(self.root , 'current' ,'services') , .1)
-                Clock.schedule_once(lambda x: setattr(self.root.get_screen('services').ids.top_app_bar , 'title' , "All Services"), .1)
-                _modal.dismiss()
+            try:
+                if _complaints['complaintid']:
+                    Clock.schedule_once(lambda dt: toast('your appointment booked',1),0.1)
+                    Clock.schedule_once(lambda x: self.render_appointment(), 0.1)
+                    #
+                    Clock.schedule_once(lambda x: setattr(self.root , 'current' ,'services') , .1)
+                    Clock.schedule_once(lambda x: setattr(self.root.get_screen('services').ids.top_app_bar , 'title' , "All Services"), .1)
+                    _modal.dismiss()
+            except Exception as e:
+                if _complaints["detail"] == "No available service engineers":
+                    Clock.schedule_once(lambda dt: toast('Our engineers are busy right now',1),0.1)
+                    Clock.schedule_once(lambda dt: toast('try again later',1.5),1.5)
+                    _modal.dismiss()
+
         threading.Thread(target=_query).start()
+    
+        # login
+    def login(self):
+        # import s_requests as s_r
+        # username = self.root.get_screen('signup').ids.username.text
+        # password = self.root.get_screen('signup').ids.password.text
+        email = self.root.get_screen('login').ids.email.text
+        # loadingscreen | modal
+        _modal.open()
+        # root = lambda: setattr(self.root, 'current', 'login')
+        # make a query to the server | signup
+        def _make_query():
+            import requests
+            
+            # _ = s_r.make_query("http://localhost:8000/login", data={"email": "user@example.com"})
+            try:
+                _ = requests.post(url=self.server_url+'login', params={"email": email}).json()
+            except Exception as e:
+                print(e)
+                Clock.schedule_once(lambda dt: toast('You are offlline'),0.5)
+                Clock.schedule_once(lambda dt: _modal.dismiss() ,1)
+                return
+            try:
+                if _['code'] == 'exists-check-email':
+                    # save the user data to the local database
+                    # import sql_local as sq_local
+                    conn_ = sq_local.create_connection('app.db')
+                    r_=sq_local.update_data(conn_, 'users', {'user_id': _['user_id'],'email': email}, {'id': 1})
+                    # take the user to the verify OTP screen
+                    # global user_id
+                    self.user_id = _['user_id']
+                    print(self.user_id,'\n',r_)
+                    Clock.schedule_once(lambda dt: toast("Email already exists\ncheck email for otp", duration=2.5), 0)
+                    Clock.schedule_once(lambda dt: setattr(self.root, 'current', 'verify_otp'), 1)
+                    # Clock.schedule_once(lambda dt: setattr(self.root, 'current', 'home'), 1)
+                elif _['code'] == 'not_exist':
+                    # take the user to the login screen
+                    Clock.schedule_once(lambda dt: toast("Email does not exist", duration=1.5), 0)
+                    Clock.schedule_once(lambda dt: setattr(self.root, 'current', 'signup'), 1)
+            except Exception as e:
+                try:
+                    if _['detail'] == 'Username already exists':...
+                        # toast("Username already exists",duration=1.5)
+                except Exception as e:
+                    print(e)
+            finally:
+                _modal.dismiss()
+                # print(_,'from login')
+        threading.Thread(target=_make_query).start()
+        # if username and password:
+        #     print(f"Username: {username}, Password: {password}")
+        #     self.root.current = 'login'
+        # else:
+        #     print("Please enter valid details")
+        
+    # signup
+    def signup(self):
+        import requests
+        global server_url
+        # make a query to the server | signin
+        # load modal
+        _modal.open()
+        def _make_query():
+            name = self.root.get_screen('signup').ids.username.text
+            email = self.root.get_screen('signup').ids.email.text
+            try:
+                _ = requests.post(url=self.server_url+'login_or_signup', json={"username": name, "email": email}).json()
+            except Exception as e:
+                Clock.schedule_once(lambda dt: toast('You are offlline'),0.5)
+                Clock.schedule_once(lambda dt: _modal.dismiss() ,1)
+                return
+            try:
+                if 'code' in _:
+                    if _['code'] == 'check-email':
+                        # save the user data to the local database
+                        # import sql_local as sq_local
+                        conn_ = sq_local.create_connection('app.db')
+                        sq_local.update_data(conn_, 'users', {'user_id': _['user_id'],'email': email}, {'id': 1})
+                        # close the connection
+                        conn_.close()
+                        # global user_id
+                        self.user_id = _['user_id']
+                        # take the user to the login screen
+                        Clock.schedule_once(lambda dt: toast("OTP sent", duration=1.5), 1)
+                        Clock.schedule_once(lambda dt: setattr(self.root, 'current', 'verify_otp'), 1)
+                elif 'detail' in _:
+                    if _['detail'] == "Email already exists":
+                        # take the user to the login screen
+                        Clock.schedule_once(lambda dt: toast("Email already exists", duration=1.5), 1)
+                        Clock.schedule_once(lambda dt: setattr(self.root, 'current', 'login'), 1)
+            except Exception as e:
+                print(f"Exception occurred: {e}")
+                Clock.schedule_once(lambda dt: toast("EXCEPTION ",e[:10], duration=1.5), 1)
+
+            finally:
+                print(_)
+                _modal.dismiss()
+        
+        threading.Thread(target=_make_query).start()
+
+    # verify otp
+    def verify_otp(self):
+        import requests
+        global server_url
+        # make a query to the server | verify otp
+        _modal.open()
+        def _make_query():
+            # global user_id
+            global _current_screen
+            # loading screen
+            otp = int(self.root.get_screen('verify_otp').ids.otp.text)
+            try:
+                _ = requests.post(url=self.server_url+'verify_otp', params={"user_id": self.user_id, "otp_": otp}).json()
+            except Exception as e:
+                Clock.schedule_once(lambda dt: toast('You are offlline'),0.5)
+                # close the modal
+                Clock.schedule_once(lambda dt: _modal.dismiss() ,1)
+                return
+            try:
+                # print(_)
+                if _['code'] == 'success':
+                    # take the user to the login screen
+                    Clock.schedule_once(lambda dt: toast("OTP verified", duration=1.5), 0)
+                    # 1
+                    self.render_appointment()
+                    Clock.schedule_once(lambda dt: setattr(self.root, 'current', 'book_apointment'), 1)
+            except Exception as e:
+                if _['detail'] == 'Invalid OTP':
+                    print("Invalid OTP detected")
+                    print(_['detail'])
+                    _modal.dismiss()
+                    Clock.schedule_once(lambda dt: toast("Invalid OTP", duration=1.5), 0)
+                elif _['detail'] == 'Invalid user_id':
+                    Clock.schedule_once(lambda dt: toast("Invalid user_id", duration=1.5), 0)
+                    _modal.dismiss()
+                elif _['detail'] == 'OTP expired':
+                    Clock.schedule_once(lambda dt: toast("OTP expired", duration=1.5), 0)
+                    _modal.dismiss()
+                    # display to the user that the otp has expired
+                else:
+                    print(_['detail'])
+                    _modal.dismiss()
+                # print(f"Exception occurred: {e}")
+        
+        threading.Thread(target=_make_query).start()
+
+    def switch_to_tab(self, *args):
+        try:
+            # print(self.root.get_screen('services').ids.bottom_nav.get_tabs_list())
+            self.root.get_screen('services').ids.bottom_nav.switch_tab(text='Appointments')
+        except Exception as e:
+            print(e)
 
     def on_start(self):
         # 1
         self._init_loading_widget()
-        # 3
+        # 2
         self._dialog = MDDialog(
                     title='status',
                     type="simple",
@@ -268,6 +468,68 @@ class FAPP(MDApp):
                         ),
                     ],
                 )
+        # 3 ...
+        # 4
+        global _modal_issue
+        # _modal_issue  =   ModalView(size_hint=(.5, .5), auto_dismiss=True, background='', background_color=[1, 1, 1, .5],border=[20,0,0,20])
+        _modal_issue = MDDialog(
+                title="Set backup account",
+                type="custom",
+                content_cls=MDBoxLayout(
+                    MDTextField(
+                        hint_text="",
+                    ),
+                    orientation="vertical",
+                    spacing="12dp",
+                    size_hint_y=None,
+                    height="120dp",
+                ),
+                buttons=[
+                    MDFlatButton(
+                        text="CANCEL",
+                        theme_text_color="Custom",
+                        text_color=self.theme_cls.primary_color,
+                        on_release=lambda x: _modal_issue.dismiss()
+                    ),
+                    MDFlatButton(
+                        text="OK",
+                        theme_text_color="Custom",
+                        text_color=self.theme_cls.primary_color,
+                        
+                    ),
+                ],
+            )
+        # 5
+        # import dependencies
+        import sql_local as sq_local
+        # check if the local database exists
+        # import_dependencies()
+        global con_local
+        con_local = sq_local.check_db_exists('app.db')
+        # initialize the local-database
+        sq_local.initialize_db(con_local)
+        # if the app is running for the first time
+        if sq_local.query_data(con_local, 'select app_first_run from settings')[0][0] == 1:
+            # set the app_first_run to False
+            sq_local.update_data(con_local, 'settings', {'app_first_run': 0},condition={'id': 1})
+            # take the user to the welcome screen
+            Clock.schedule_once(lambda dt: setattr(self.root, 'current', 'welcome'), 2.5)
+            # self.root.current = 'welcome'
+        else:
+            # get the app theme and set it
+            app_theme = sq_local.query_data(con_local, 'SELECT app_theme FROM settings')[0][0]
+            self.theme_cls.theme_style = app_theme
+            app_theme = None
+            # get user_id
+            _uid = sq_local.query_data(con_local, 'SELECT user_id FROM users')[0][0]
+            self.user_id = _uid if not _uid=='xyz' else ''
+            self.user_name = sq_local.query_data(con_local, 'SELECT email FROM users')[0][0]
+            # take the user to the menu screen
+            # Clock.schedule_once(lambda dt: setattr(self.root, 'current', 'login'), 2.5)
+            # self.root.current = 'menu'
+
+        # 6
+        self.render_appointment() if self.user_id else toast('You are not logged in',1)
 
     def _init_loading_widget(self):
         ''' Initialize the loading widget '''

@@ -6,7 +6,7 @@ SQL for local database | app
 
 # 1
 def check_db_exists(db_file):
-    """ check if the database exists / create it if not """
+    """ check if the database exists / creates it if not """
     try:
         if not os.path.exists(db_file): # if not exists
             conn = create_connection(db_file)
