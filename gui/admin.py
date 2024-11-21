@@ -74,8 +74,7 @@ MDScreenManager:
             MDBottomNavigationItem:
                 name: 'screen 1'
                 text: 'service engineers'
-                icon: "account-hard-hat"
-                badge_icon: "numeric-1"
+                icon: "face-agent"
 
                 MDScreen:
                     FitImage:
@@ -130,7 +129,6 @@ MDScreenManager:
                 name: 'screen 2'
                 text: 'complaints'
                 icon: 'gmail'
-                badge_icon: "numeric-1"
 
                 MDScreen:
                    
@@ -192,7 +190,7 @@ class PullToRefreshBehavior:
         return super().on_touch_down(touch)
 
     def on_touch_up(self, touch):
-        if self._start_touch_y and self._start_touch_y - touch.y > 150:
+        if self._start_touch_y and self._start_touch_y - touch.y > 350:
         # if self._start_touch_y and touch.y - self._start_touch_y > 150:  # Adjust the threshold as needed
             self.refresh()
         self._start_touch_y = None
@@ -872,10 +870,10 @@ class AdminDashboardApp(MDApp):
                     rightwidget[0].icon = "home" if _engineers['data'][engineers_list.children.index(i)]['availability'] else "briefcase"
                     rightwidget[0].theme_text_color = "Custom"
                     rightwidget[0].text_color = 'green' if _engineers['data'][engineers_list.children.index(i)]['availability'] else 'orange'
-                    rightwidget[0].on_release = lambda : _modal.open()
+                    # rightwidget[0].on_release = lambda : _modal.open()
                     #
                     leftwidget = i.children[1].children
-                    leftwidget[0].icon = "account-hard-hat"
+                    leftwidget[0].icon = "face-agent"
                     leftwidget[0].theme_text_color = "Custom"
                     leftwidget[0].text_color = 'green' if _engineers['data'][engineers_list.children.index(i)]['availability'] else 'orange'
                     leftwidget[0].on_release = lambda _instance = i, x=_engineers['data'][engineers_list.children.index(i)]['name'] : open_modal_engineer(_name=x,_instance=_instance)

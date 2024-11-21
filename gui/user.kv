@@ -1,10 +1,10 @@
 #:kivy 2.1.0
 
 MDScreenManager:
+    MenuScreen:
     WelcomeScreen:
     LoginScreen:
     SignupScreen:
-    MenuScreen:
     BookApointmentScreen:
     VerifyOTPScreen:
 
@@ -34,7 +34,7 @@ MDScreenManager:
             MDBottomNavigationItem:
                 name: 'services_tab'
                 text: "services"
-                icon: "home"
+                icon: "face-agent"
                 badge_icon: ""
                 icon_color: app.theme_cls.primary_color
                 
@@ -129,20 +129,20 @@ MDScreenManager:
             MDBottomNavigationItem:
                 name: 'appointments_tab'
                 text: 'Appointments'
-                icon: "new-box"
-                badge_icon: "numeric-2"
+                icon: "clipboard-list"
+                badge_icon: ""
                 icon_color: app.theme_cls.primary_color
 
                 BoxLayout:
                     orientation: 'vertical'
                     
-                    ScrollView:
+                    RefreshScrollView:
                         do_scroll_x: False
                         MDList:
                             id: appointments_list
 
                             TwoLineAvatarIconListItem:
-                                text: "Your Appointments here"
+                                text: "Your Booked Appointments here"
                                 secondary_text: "You have no appointments yet"
 
                                 IconLeftWidget:
@@ -254,7 +254,14 @@ MDScreenManager:
     
     FitImage:
         source: app.image_list[0]
-
+    MDIconButton:
+        icon: "skip-previous-circle"
+        text: "Home"
+        icon_size: "32sp"  
+        size_hint: None, None
+        size: dp(400), dp(80)
+        pos_hint: {'top': 1, 'center_x': 0.3}
+        on_release: app.root.current = 'services'
     MDFloatLayout:
         pos_hint: {'center_x': 0.5, 'center_y': 0.5}
         MDTextField:
@@ -274,6 +281,14 @@ MDScreenManager:
 
     FitImage:
         source: app.image_list[0]
+    MDIconButton:
+        icon: "skip-previous-circle"
+        text: "Home"
+        icon_size: "32sp"  
+        size_hint: None, None
+        size: dp(400), dp(80)
+        pos_hint: {'top': 1, 'center_x': 0.3}
+        on_release: app.root.current = 'services'
         
     MDFloatLayout:
         pos_hint: {'center_x': 0.5, 'center_y': 0.5}

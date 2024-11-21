@@ -8,6 +8,7 @@ import kivymd.utils.asynckivy as ak
 from kivymd.uix.button import MDFlatButton
 from kivymd.uix.boxlayout import MDBoxLayout
 from kivymd.uix.textfield import MDTextField
+from kivy.uix.scrollview import ScrollView
 import sql_local as sq_local
 from kivy.lang import Builder
 from kivymd.toast import toast as tst
@@ -15,6 +16,8 @@ from kivy.utils import platform
 from kivy.clock import Clock
 import threading
 from kivy.properties import StringProperty
+from kivy.properties import BooleanProperty, ObjectProperty, NumericProperty
+from kivy.metrics import dp
 
 def toast(text:str, duration=1.0):
     if platform == 'android':
@@ -36,7 +39,49 @@ class TwoLineAvatarIconListItem(TwoLineAvatarIconListItem):
     source = StringProperty()
     complaint_id = StringProperty()
 
-class FAPP(MDApp):
+class PullToRefreshBehavior:
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        self._start_touch_y = None
+
+    def on_touch_down(self, touch):
+        if self.collide_point(*touch.pos):
+            self._start_touch_y = touch.y
+        return super().on_touch_down(touch)
+
+    def on_touch_up(self, touch):
+        if self._start_touch_y and self._start_touch_y - touch.y > 350:
+        # if self._start_touch_y and touch.y - self._start_touch_y > 150:  # Adjust the threshold as needed
+            self.refresh()
+        self._start_touch_y = None
+        return super().on_touch_up(touch)
+
+    def refresh(self):
+        print("Pulled down to refresh!")
+        # Add your refresh logic here
+
+global FAPP
+
+class RefreshScrollView(PullToRefreshBehavior, ScrollView):
+    refreshing = BooleanProperty(False)
+    spinner = ObjectProperty(None)
+    global _modal
+    global FAPP
+
+    def refresh(self):
+        print("Pulled down to refresh!")
+        _modal.open()
+        # Add your refresh logic here
+        Clock.schedule_once(FAPP.render_appointment, .3)  # Simulate a delay
+        # threading.Thread(target=self.run_background_task).start()  # Run the background task in a separate thread
+
+    def run_background_task(self):
+        try:
+            FAPP.render_engineers()
+        except Exception as e:
+            print(e)
+
+class APP(MDApp):
     user_id: str = '' #"0ef59067-6cc5-447a-8d4c-21e50577958d"
     server_url = "https://chat-app.fudemy.me/"
     current_screen = ''
@@ -538,8 +583,9 @@ class FAPP(MDApp):
         from kivymd.uix.spinner import MDSpinner
         global _modal
         _modal  =   ModalView(size_hint=(.5, .5), auto_dismiss=False, background='', background_color=[0, 0, 0, 0])
-        _modal.add_widget(MDSpinner(size_hint=(None, None), size=(46, 46), pos_hint={'center_x': .5, 'center_y': .5},active=True))  # Load and play the GIF
+        _modal.add_widget(MDSpinner(line_width=dp(5.25), size_hint=(None, None), size=(80, 80), pos_hint={'center_x': .5, 'center_y': .5}, active=True))  # Load and play the GIF
     
 
-
-FAPP().run()
+# app instance
+FAPP = APP()
+FAPP.run()
