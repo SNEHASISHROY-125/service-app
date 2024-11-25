@@ -2,10 +2,10 @@
 
 MDScreenManager:
     MenuScreen:
-    WelcomeScreen:
-    LoginScreen:
-    SignupScreen:
     BookApointmentScreen:
+    WelcomeScreen:
+    SignupScreen:
+    LoginScreen:
     VerifyOTPScreen:
 
 <Item>
@@ -48,7 +48,7 @@ MDScreenManager:
                         padding: dp(10)
                         spacing: dp(10)
                         
-                        md_bg_color: 0.9, 0.7, 0.9, 1
+                        md_bg_color: 0.9, 0.7, 0.9, 0.3
                         radius: [15, 15, 15, 15]
                     
                         MDBoxLayout:
@@ -151,7 +151,25 @@ MDScreenManager:
                                 IconRightWidget:
                                     icon: "chevron-right"
                             
-                            
+            MDBottomNavigationItem:
+                name: 'hot_deals_tab'
+                text: 'hot deals'
+                icon: "fire"
+                badge_icon: ""
+                icon_color: app.theme_cls.primary_color
+
+                FitImage:
+                    source: 'assets/discount.png'
+                MDFloatLayout:
+                    
+                    MDLabel:
+                        pos_hint: {'center_x': 0.5, 'center_y': 0.051}
+                        text: "No hot deals yet"
+                        bold: True
+                        halign: 'center'
+                        theme_text_color: "Custom"
+                        text_color: 1, 0.7, 0.3, 1
+                    
 <BookApointmentScreen@MDScreen>:
     name: 'book_apointment'
     BoxLayout:
@@ -167,7 +185,7 @@ MDScreenManager:
         MDBoxLayout:
             
             padding: dp(20)
-            md_bg_color: 0.9, 0.7, 0.9, 1
+            md_bg_color: 0.9, 0.7, 0.9, 0.3
             radius: [30, 30, 15, 15]
             orientation: 'vertical'
                                    
@@ -263,17 +281,20 @@ MDScreenManager:
         pos_hint: {'top': 1, 'center_x': 0.3}
         on_release: app.root.current = 'services'
     MDFloatLayout:
-        pos_hint: {'center_x': 0.5, 'center_y': 0.5}
-        MDTextField:
-            id: email
-            hint_text: "Email"
+        MDBoxLayout:
             pos_hint: {'center_x': 0.5, 'center_y': 0.5}
-            size_hint_x: None
-            max_text_length: 50
-            width: 300
+            padding: dp(20)
+            MDTextField:
+                id: email
+                mode: "rectangle"
+                hint_text: "Email"
+                pos_hint: {'center_x': 0.5, 'center_y': 0.5}
+                max_text_length: 50
+                text: app.email
+                
         MDRaisedButton: 
             text: "Login"
-            pos_hint: {'center_x': 0.5, 'center_y': 0.4}
+            pos_hint: {'center_x': 0.5, 'center_y': 0.3}
             on_release: app.login() if email.text and len(email.text)<50 else app.toast("Please enter email")
 
 <VerifyOTPScreen@Screen>:
@@ -294,14 +315,16 @@ MDScreenManager:
         pos_hint: {'center_x': 0.5, 'center_y': 0.5}
         spacing: dp(10)
 
-        MDTextField:
-            id: otp
-            hint_text: "ENTER OTP SENT TO YOUR EMAIL"
+        MDBoxLayout:
             pos_hint: {'center_x': 0.5, 'center_y': 0.5}
-            size_hint_x: None
-            width: 300
-            max_text_length: 6
-            input_filter: "int"
+            padding: dp(20)
+            MDTextField:
+                id: otp
+                mode: "rectangle"
+                hint_text: "ENTER OTP SENT TO YOUR EMAIL"
+                pos_hint: {'center_x': 0.5, 'center_y': 0.5}
+                max_text_length: 6
+                input_filter: "int"
         MDLabel:
             text: "OTP will expire in 3 minutes"
             halign: 'center'
@@ -326,24 +349,29 @@ MDScreenManager:
             elevation: 10
             
         MDFloatLayout:
-            pos_hint: {'center_x': 0.5, 'center_y': 0.8}
-
-            MDTextField:
-                id: username
-                hint_text: "Username"
-                pos_hint: {'center_x': 0.5, 'center_y': 0.6}
-                size_hint_x: None
-                width: 300
-                max_text_length: 20
-            MDTextField:
-                id: email
-                hint_text: "Email"
-                pos_hint: {'center_x': 0.5, 'center_y': 0.5}
-                size_hint_x: None
-                width: 300
-                max_text_length: 50
+            pos_hint: {'center_x': 0.5, 'center_y': 0.9}
+            
+            MDBoxLayout:
+                orientation: 'vertical'
+                padding: dp(30)
+                pos_hint: {'center_x': 0.5, 'center_y': 0.9}
+                spacing: dp(10)
+                MDTextField:
+                    id: username
+                    mode: "rectangle"
+                    hint_text: "Username"
+                    pos_hint: {'center_x': 0.5, 'center_y': 0.6}
+                    max_text_length: 20
+                MDTextField:
+                    id: email
+                    mode: "rectangle"
+                    hint_text: "Email"
+                    pos_hint: {'center_x': 0.5, 'center_y': 0.4}
+                    max_text_length: 50
             MDRaisedButton:
                 text: "Signup"
-                pos_hint: {'center_x': 0.5, 'center_y': 0.4}
-                on_release: app.signup() if username.text and email.text and len(email.text)<50 and len(username.text)<20 else app.toast("Please fill all fields")
+                pos_hint: {'center_x': 0.5, 'center_y': 0.3}
+                on_release: 
+                    setattr(app ,'email' ,email.text)
+                    app.signup() if username.text and email.text and len(email.text)<50 and len(username.text)<20 else app.toast("Please fill all fields")
            

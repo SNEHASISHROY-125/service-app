@@ -19,13 +19,20 @@ from kivy.properties import StringProperty
 from kivy.properties import BooleanProperty, ObjectProperty, NumericProperty
 from kivy.metrics import dp
 
+
+from kivy.config import Config
+Config.set('kivy', 'pause_on_minimize', '1')
+from kivy.core.window import Window
+# Set the window size
+Window.size = (800, 600)
+
 def toast(text:str, duration=1.0):
     if platform == 'android':
         tst(text, duration)
     else:
         tst(text, duration=duration)
 
-#
+# "https://icons8.com/illustrations/author/ARh4OKrFtdfC" discount.png
 images = [
 "https://images.pexels.com/photos/3389613/pexels-photo-3389613.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2"
 ]
@@ -88,6 +95,7 @@ class APP(MDApp):
     switch_tab = ''
     user_name = ''
     image_list = images
+    email = ''
 
     def build(self):
         self.theme_cls.primary_palette = "Orange"
@@ -98,6 +106,8 @@ class APP(MDApp):
         screen = self.root.get_screen('services')
         if instance_tab.name == 'appointments_tab':
             screen.ids.top_app_bar.title = "My Appointments"
+        elif instance_tab.name == 'hot_deals_tab':
+            screen.ids.top_app_bar.title = "Hot Deals"
         else:
             screen.ids.top_app_bar.title = "All Services"
         print(instance_tab.name)
@@ -122,6 +132,12 @@ class APP(MDApp):
         def _query():
             #
             server_url = "http://chat-app.fudemy.me/"
+            if not self.user_id or self.user_id == 'xyz':
+                Clock.schedule_once(lambda dt: toast('You are not logged in',1),0.1)
+                Clock.schedule_once(lambda dt: toast('log in to see your appointments',1),0.5)
+                Clock.schedule_once(lambda dt: _modal.dismiss() ,1)
+                print(self.user_id)
+                return
             global _complaints
             try:
                 print(server_url)
@@ -390,6 +406,9 @@ class APP(MDApp):
         
     # signup
     def signup(self):
+        print('form signup ',self.email)
+        # set the email
+        self.root.get_screen('login').ids.email.text = self.email
         import requests
         global server_url
         # make a query to the server | signin
@@ -479,12 +498,7 @@ class APP(MDApp):
         
         threading.Thread(target=_make_query).start()
 
-    def switch_to_tab(self, *args):
-        try:
-            # print(self.root.get_screen('services').ids.bottom_nav.get_tabs_list())
-            self.root.get_screen('services').ids.bottom_nav.switch_tab(text='Appointments')
-        except Exception as e:
-            print(e)
+    # 
 
     def on_start(self):
         # 1
@@ -575,6 +589,15 @@ class APP(MDApp):
 
         # 6
         self.render_appointment() if self.user_id else toast('You are not logged in',1)
+
+    def on_pause(self):
+        # Save any necessary state data or suspend operations here.
+        return True  # Return True to indicate we’re handling the pause.
+
+    def on_resume(self):
+        # Restore any data or state when the app resumes.
+        # Force a redraw
+        self.root.canvas.ask_update()
 
     def _init_loading_widget(self):
         ''' Initialize the loading widget '''

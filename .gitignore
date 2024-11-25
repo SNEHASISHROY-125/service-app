@@ -15,7 +15,8 @@ __pycache__/
 
 .github/workflows
 *.yml
-*.png
 venv
-
+.github/
+.vscode/
 venv/
+app.db
