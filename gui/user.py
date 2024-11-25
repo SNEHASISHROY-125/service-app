@@ -4,7 +4,7 @@ User-UI
 from kivymd.app import MDApp
 from kivymd.uix.list import TwoLineAvatarIconListItem, OneLineAvatarListItem, IconLeftWidget, IconRightWidget
 from kivymd.uix.dialog import MDDialog
-import kivymd.utils.asynckivy as ak
+# import kivymd.utils.asynckivy as ak
 from kivymd.uix.button import MDFlatButton
 from kivymd.uix.boxlayout import MDBoxLayout
 from kivymd.uix.textfield import MDTextField
