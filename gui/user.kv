@@ -161,7 +161,9 @@ MDScreenManager:
                 FitImage:
                     source: 'assets/discount.png'
                 MDFloatLayout:
-                    
+                    MDIcon:
+                        icon: "heart-broken"
+                        pos_hint: {'center_x': 0.3, 'center_y': 0.051}
                     MDLabel:
                         pos_hint: {'center_x': 0.5, 'center_y': 0.051}
                         text: "No hot deals yet"
@@ -169,7 +171,7 @@ MDScreenManager:
                         halign: 'center'
                         theme_text_color: "Custom"
                         text_color: 1, 0.7, 0.3, 1
-                    
+                
 <BookApointmentScreen@MDScreen>:
     name: 'book_apointment'
     BoxLayout:

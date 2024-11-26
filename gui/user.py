@@ -18,13 +18,14 @@ import threading
 from kivy.properties import StringProperty
 from kivy.properties import BooleanProperty, ObjectProperty, NumericProperty
 from kivy.metrics import dp
+from kivy.utils import platform
 
 
 from kivy.config import Config
 Config.set('kivy', 'pause_on_minimize', '1')
 from kivy.core.window import Window
 # Set the window size
-Window.size = (800, 600)
+# Window.size = (350, 600)
 
 def toast(text:str, duration=1.0):
     if platform == 'android':
@@ -33,6 +34,7 @@ def toast(text:str, duration=1.0):
         tst(text, duration=duration)
 
 # "https://icons8.com/illustrations/author/ARh4OKrFtdfC" discount.png
+# <a href="https://www.flaticon.com/free-icons/availability" title="availability icons">Availability icons created by Freepik - Flaticon</a> icon.png
 images = [
 "https://images.pexels.com/photos/3389613/pexels-photo-3389613.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2"
 ]
@@ -101,6 +103,12 @@ class APP(MDApp):
         self.theme_cls.primary_palette = "Orange"
         self.theme_cls.primary_hue = "A700" 
         return Builder.load_file('gui/user.kv')
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        if platform == 'android':
+            from android.permissions import request_permissions, Permission
+            request_permissions([Permission.READ_EXTERNAL_STORAGE, Permission.WRITE_EXTERNAL_STORAGE])
+            Window.size = (350, 600)
     
     def on_tab_switch(self, instance_tabs, instance_tab, instance_tab_label,):
         screen = self.root.get_screen('services')
