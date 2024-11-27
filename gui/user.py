@@ -33,8 +33,7 @@ def toast(text:str, duration=1.0):
     else:
         tst(text, duration=duration)
 
-# "https://icons8.com/illustrations/author/ARh4OKrFtdfC" discount.png
-# <a href="https://www.flaticon.com/free-icons/availability" title="availability icons">Availability icons created by Freepik - Flaticon</a> icon.png
+
 images = [
 "https://images.pexels.com/photos/3389613/pexels-photo-3389613.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2"
 ]
