@@ -50,7 +50,15 @@ MDScreenManager:
                         
                         md_bg_color: 0.9, 0.7, 0.9, 0.3
                         radius: [15, 15, 15, 15]
-                    
+                # ScrollView:
+                #     do_scroll_x: False
+                #     do_scroll_y: True
+                #     MDList:
+                #         id: services_list
+                #         spacing: dp(200)
+                        
+
+
                         MDBoxLayout:
                             orientation: 'horizontal'
                             
@@ -61,7 +69,11 @@ MDScreenManager:
                                 box_radius: [0, 0, 24, 24]
                                 box_color: 1, 1, 1, .7
                                 source: "https://static9.depositphotos.com/1518767/1119/i/450/depositphotos_11193992-stock-photo-smiling-assistant-using-a-headset.jpg"
-                                pos_hint: {"center_x": .5, "center_y": .5}
+                                # pos_hint: {"center_x": .5, "center_y": .5}
+                                size_hint: 1, None
+                                height: dp(200)
+                                allow_stretch: True
+                                keep_ratio: True
                                 on_release: setattr(app.root ,'current' ,'book_apointment') if app.user_id else (app.toast("Please login to book an appointment"), setattr(app.root, 'current', 'login'))
                                 
                                 MDLabel:
@@ -77,7 +89,11 @@ MDScreenManager:
                                 box_radius: [0, 0, 24, 24]
                                 box_color: 1, 1, 1, .7
                                 source: "https://thumbs.dreamstime.com/b/electronics-repair-service-hands-senior-tech-reparing-electronic-circuit-43452823.jpg"
-                                pos_hint: {"center_x": .5, "center_y": .5}
+                                # pos_hint: {"center_x": .5, "center_y": .5}
+                                size_hint: 1, None
+                                height: dp(200)
+                                allow_stretch: True
+                                keep_ratio: True
                                 on_release: setattr(app.root ,'current' ,'book_apointment') if app.user_id else (app.toast("Please login to book an appointment"), setattr(app.root, 'current', 'login'))
 
                                 MDLabel:
@@ -99,7 +115,7 @@ MDScreenManager:
                                 box_radius: [0, 0, 24, 24]
                                 box_color: 1, 1, 1, .3
                                 source: "https://t3.ftcdn.net/jpg/02/77/69/26/360_F_277692690_xAGq27kZEjCmDq8D3lcttSjM6IeUVgKI.jpg"
-                                pos_hint: {"center_x": .5, "center_y": .5}
+                                # pos_hint: {"center_x": .5, "center_y": .5}
                                 size_hint: 1, None
                                 height: dp(200)
                                 allow_stretch: True
@@ -118,7 +134,11 @@ MDScreenManager:
                                 box_radius: [0, 0, 24, 24]
                                 box_color: 1, 1, 1, .3
                                 source: "https://t3.ftcdn.net/jpg/02/77/69/26/360_F_277692690_xAGq27kZEjCmDq8D3lcttSjM6IeUVgKI.jpg"
-                                pos_hint: {"center_x": .5, "center_y": .5}
+                                # pos_hint: {"center_x": .5, "center_y": .5}
+                                size_hint: 1, None
+                                height: dp(200)
+                                allow_stretch: True
+                                keep_ratio: True
                                 on_release: app.toast("Coming Soon")
                                 
                                 MDLabel:
@@ -128,6 +148,8 @@ MDScreenManager:
                                     theme_text_color: "Custom"
                                     text_color: 1, 0.7, 0.3, 1
                                     font_style: "H5"
+                        
+
                 
 
             MDBottomNavigationItem:
