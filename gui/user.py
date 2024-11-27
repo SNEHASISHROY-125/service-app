@@ -102,13 +102,16 @@ class APP(MDApp):
     def build(self):
         self.theme_cls.primary_palette = "Orange"
         self.theme_cls.primary_hue = "A700" 
-        return Builder.load_file('gui/user.kv')
+        if platform == 'android':
+            return Builder.load_file('user.kv')
+        else:
+            return Builder.load_file('gui/user.kv')
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         if platform == 'android':
             from android.permissions import request_permissions, Permission
             request_permissions([Permission.READ_EXTERNAL_STORAGE, Permission.WRITE_EXTERNAL_STORAGE])
-            Window.size = (350, 600)
+            # Window.size = (350, 600)
     
     def on_tab_switch(self, instance_tabs, instance_tab, instance_tab_label,):
         screen = self.root.get_screen('services')
@@ -614,7 +617,7 @@ class APP(MDApp):
         from kivymd.uix.spinner import MDSpinner
         global _modal
         _modal  =   ModalView(size_hint=(.5, .5), auto_dismiss=False, background='', background_color=[0, 0, 0, 0])
-        _modal.add_widget(MDSpinner(line_width=dp(5.25), size_hint=(None, None), size=(80, 80), pos_hint={'center_x': .5, 'center_y': .5}, active=True))  # Load and play the GIF
+        _modal.add_widget(MDSpinner(line_width=dp(5.25), size_hint=(None, None), size=(120, 120), pos_hint={'center_x': .5, 'center_y': .5}, active=True))  # Load and play the GIF
     
 
 # app instance

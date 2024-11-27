@@ -100,6 +100,10 @@ MDScreenManager:
                                 box_color: 1, 1, 1, .3
                                 source: "https://t3.ftcdn.net/jpg/02/77/69/26/360_F_277692690_xAGq27kZEjCmDq8D3lcttSjM6IeUVgKI.jpg"
                                 pos_hint: {"center_x": .5, "center_y": .5}
+                                size_hint: 1, None
+                                height: dp(200)
+                                allow_stretch: True
+                                keep_ratio: True
                                 on_release: app.toast("Coming Soon")
                                 
                                 MDLabel:
@@ -158,20 +162,42 @@ MDScreenManager:
                 badge_icon: ""
                 icon_color: app.theme_cls.primary_color
 
-                FitImage:
-                    source: 'assets/discount.png'
                 MDFloatLayout:
-                    MDIcon:
-                        icon: "heart-broken"
-                        pos_hint: {'center_x': 0.3, 'center_y': 0.051}
-                    MDLabel:
-                        pos_hint: {'center_x': 0.5, 'center_y': 0.051}
-                        text: "No hot deals yet"
-                        bold: True
-                        halign: 'center'
-                        theme_text_color: "Custom"
-                        text_color: 1, 0.7, 0.3, 1
-                
+                    Image:
+                        source: 'assets/discount.png'
+                        allow_stretch: True
+                        keep_ratio: True
+                        pos_hint: {'center_x': 0.5, 'center_y': 0.5}
+                    MDBoxLayout:
+                        orientation: 'horizontal'
+                        spacing: dp(10)
+                        size_hint: None, None
+                        size: self.minimum_size  # Automatically adjusts to fit children
+                        # weight: dp(400)
+                        pos_hint: {'center_x': 0.5, 'center_y': 0.1}
+                        # md_bg_color: 0, 0, 1, 0.2  # Semi-transparent blue background
+
+                        MDLabel:
+                            text: ''
+                        
+                        MDIcon:
+                            icon: "heart-broken"
+                            size_hint: None, None
+                            size: dp(24), dp(24)
+                            pos_hint: {'center_x': 0.5, 'center_y': 0.5}
+                            theme_text_color: "Custom"
+                            text_color: app.theme_cls.primary_color
+
+                        MDLabel:
+                            text: "No hot deals yet"
+                            bold: True
+                            # halign: 'center'
+                            valign: 'center'
+                            size_hint_x: None
+                            width: dp(150)
+                            theme_text_color: "Custom"
+                            text_color: 1, 0.7, 0.3, 1
+
 <BookApointmentScreen@MDScreen>:
     name: 'book_apointment'
     BoxLayout:
