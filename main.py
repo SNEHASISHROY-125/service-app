@@ -198,6 +198,7 @@ def get_db():
 class User(BaseModel):
     username: str
     email: str
+    phone: str
 
 # User model for signin
 class UserSignIn(BaseModel):
@@ -230,21 +231,36 @@ class Admin(BaseModel):
 
 
 @app.post("/login")
-def login_or_signup(email: str, db: Session = Depends(get_db)):
+def login_or_signup(email: str,phone:str, db: Session = Depends(get_db)):
     '''``log-in``'''
-    # Check if email already exists
-    stmt = select(users).where(users.c.email == email)
-    existing_user = db.execute(stmt).first()
-    if existing_user:
-        # send the otp to the email
-        otp_ = mail.generate_otp()
-        # add the otp to the database
-        db.execute(update(otp).where(otp.c.user_id == existing_user.user_id).values(otp=otp_[0], UTC=otp_[1]))
-        db.commit()
-        mail.send_mail(otp_[0], email=email, name=existing_user.username)
-        return {"code": "exists-check-email", "user_id": existing_user.user_id}
-    else:
-        return {"code": "not_exist"}
+    if email and email != 'demo':
+        # Check if email already exists
+        stmt = select(users).where(users.c.email == email)
+        existing_user = db.execute(stmt).first()
+        if existing_user:
+            # send the otp to the email
+            otp_ = mail.generate_otp()
+            # add the otp to the database
+            db.execute(update(otp).where(otp.c.user_id == existing_user.user_id).values(otp=otp_[0], UTC=otp_[1]))
+            db.commit()
+            mail.send_mail(otp_[0], email=email, name=existing_user.username)
+            return {"code": "exists-check-email", "user_id": existing_user.user_id}
+        else:
+            return {"code": "not_exist"}
+    elif phone and phone != 'demo':
+        # Check if phone already exists
+        stmt = select(users).where(users.c.phone == phone)
+        existing_user = db.execute(stmt).first()
+        if existing_user:
+            # send the otp to the email
+            otp_ = mail.generate_otp()
+            # add the otp to the database
+            db.execute(update(otp).where(otp.c.user_id == existing_user.user_id).values(otp=otp_[0], UTC=otp_[1]))
+            db.commit()
+            print(_:=mail.send_otp_mob(otp=otp_[0], number=phone))
+            return {"code": "exists-check-phone", "user_id": existing_user.user_id}
+        else:
+            return {"code": "not_exist"}
     
 @app.post("/verify_otp")
 def verify_otp(user_id: str, otp_: int, db: Session = Depends(get_db)):
@@ -255,10 +271,10 @@ def verify_otp(user_id: str, otp_: int, db: Session = Depends(get_db)):
     if not existing_otp:
         raise HTTPException(status_code=400, detail="Invalid user_id")
     if existing_otp.otp == otp_:
-        # Check if the OTP is within the valid time frame (3 minutes)
+        # Check if the OTP is within the valid time frame (10 minutes)
         otp_creation_time = datetime.datetime.fromisoformat(existing_otp.UTC) #formating str to the datetime object
         current_time = datetime.datetime.now(datetime.UTC)
-        if current_time - otp_creation_time <= timedelta(minutes=5):
+        if current_time - otp_creation_time <= timedelta(minutes=10):
             return {"code": "success"}
         else:
             raise HTTPException(status_code=400, detail="OTP expired")
@@ -267,23 +283,45 @@ def verify_otp(user_id: str, otp_: int, db: Session = Depends(get_db)):
 
 @app.post("/login_or_signup")
 def add_user(user: User, db: Session = Depends(get_db)):
+    # if user.email and user.phone:
+    #     raise HTTPException(status_code=400, detail="Invalid request - provide either email or phone")
+    # Generate unique user ID
     user_id = str(uuid.uuid4())
-    # Check if email already exists
-    stmt = select(users).where(users.c.email == user.email)
-    existing_user = db.execute(stmt).first()
-    if existing_user:
-        raise HTTPException(status_code=400, detail="Email already exists")
+    if user.email and user.email != 'demo':
+        # Check if email already exists
+        stmt = select(users).where(users.c.email == user.email)
+        existing_user = db.execute(stmt).first()
+        if existing_user:
+            raise HTTPException(status_code=400, detail="Email already exists")
+        else:
+            db.execute(users.insert().values(user_id=user_id, username=user.username, email=user.email))
+            db.commit()
+            # send the otp to the email
+            # login_or_signup(email=user.email)
+            otp_ = mail.generate_otp()
+            # add the otp to the database
+            db.execute(otp.insert().values(user_id=user_id, otp=otp_[0], UTC=otp_[1]))
+            db.commit()
+            mail.send_mail(otp_[0], email=user.email, name=user.username)
+            return {"code": "check-email", "user_id": user_id}
+    elif user.phone and user.phone != 'demo':
+        # Check if phone already exists
+        stmt = select(users).where(users.c.phone == user.phone)
+        existing_user = db.execute(stmt).first()
+        if existing_user:
+            raise HTTPException(status_code=400, detail="Phone Number already exists")
+        else:
+            db.execute(users.insert().values(user_id=user_id, username=user.username, phone=user.phone))
+            db.commit()
+            # send the otp to the email
+            # login_or_signup(email=user.email)
+            otp_ = mail.generate_otp()
+            # add the otp to the database
+            db.execute(otp.insert().values(user_id=user_id, otp=otp_[0], UTC=otp_[1]))
+            db.commit()
+            print(_:=mail.send_otp_mob(otp=otp_[0], number=user.phone))
+            return {"code": "check-your-phone for otp", "user_id": user_id}
     
-    db.execute(users.insert().values(user_id=user_id, username=user.username, email=user.email))
-    db.commit()
-    # send the otp to the email
-    # login_or_signup(email=user.email)
-    otp_ = mail.generate_otp()
-    # add the otp to the database
-    db.execute(otp.insert().values(user_id=user_id, otp=otp_[0], UTC=otp_[1]))
-    db.commit()
-    mail.send_mail(otp_[0], email=user.email, name=user.username)
-    return {"code": "check-email", "user_id": user_id}
     # return {"code": "success", "user_id": user_id}
 
 

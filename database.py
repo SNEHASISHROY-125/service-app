@@ -19,7 +19,7 @@ users = Table(
     Column("user_id", String, unique=True, index=True),
     Column("username", String, unique=False, index=True),
     Column("email", String, unique=True, index=True),
-    Column("password", String),
+    Column("phone", String, unique=True, index=True),
 )
 
 issues = Table(

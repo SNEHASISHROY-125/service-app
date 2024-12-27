@@ -91,7 +91,7 @@ class RefreshScrollView(PullToRefreshBehavior, ScrollView):
 
 class APP(MDApp):
     user_id: str = '' #"0ef59067-6cc5-447a-8d4c-21e50577958d"
-    server_url = "https://chat-app.fudemy.me/"
+    server_url = "https://serv-api.duckdns.org/"  # "https://chat-app.fudemy.me/"
     current_screen = ''
     switch_tab = ''
     user_name = ''
@@ -141,7 +141,7 @@ class APP(MDApp):
         # make query to get all complaints
         def _query():
             #
-            server_url = "http://chat-app.fudemy.me/"
+            # server_url = "http://chat-app.fudemy.me/"
             if not self.user_id or self.user_id == 'xyz':
                 Clock.schedule_once(lambda dt: toast('You are not logged in',1),0.1)
                 Clock.schedule_once(lambda dt: toast('log in to see your appointments',1),0.5)
@@ -150,9 +150,9 @@ class APP(MDApp):
                 return
             global _complaints
             try:
-                print(server_url)
+                print(self.server_url)
                 time.sleep(1) # simulate a delay | blocks main thread
-                _complaints = requests.get(url=server_url+f"complaint/{self.user_id}/complaint_id").json()
+                _complaints = requests.get(url=self.server_url+f"complaint/{self.user_id}/complaint_id").json()
                 print(_complaints)
             except Exception as e:
                 Clock.schedule_once(lambda dt: toast('You are offlline',1),0.5)
@@ -183,12 +183,12 @@ class APP(MDApp):
                 print('from CLOSE-COMPLAINT ',_instance,_complaint_id,_code)
                 # print(_modal_issue.children[0].children[0].children[0].children[0].text)
                 def _query():
-                    server_url = "http://chat-app.fudemy.me/"
+                    # server_url = "http://chat-app.fudemy.me/"
                     global _complaints
                     try:
-                        print(server_url)
+                        print(self.server_url)
                         time.sleep(1) # simulate a delay | blocks main thread
-                        _complaints = requests.delete(url=server_url+f"close_complaint/{_complaint_id}", params={"code": _code}).json()
+                        _complaints = requests.delete(url=self.server_url+f"close_complaint/{_complaint_id}", params={"code": _code}).json()
                         print(_complaints)
                     except Exception as e:
                         Clock.schedule_once(lambda dt: toast('You are offlline', 1),0.5)
@@ -333,11 +333,11 @@ class APP(MDApp):
             # check data is not empty
             if not data['issue_desc'] or not data['user_location'] or not data['user_phone']:
                 return
-            server_url = "https://chat-app.fudemy.me/"
+            # server_url = "https://chat-app.fudemy.me/"
             try:
-                print(server_url)
+                print(self.server_url)
                 time.sleep(1) # simulate a delay | blocks main thread
-                _complaints = requests.post(url=server_url+"report_issue", json={"issue": data['issue_desc'], "location": data['user_location'], "phone": data['user_phone'], "user_id": self.user_id}).json()
+                _complaints = requests.post(url=self.server_url+"report_issue", json={"issue": data['issue_desc'], "location": data['user_location'], "phone": data['user_phone'], "user_id": self.user_id}).json()
                 print(_complaints)
             except Exception as e:
                 Clock.schedule_once(lambda dt: toast('You are offlline',1),0.1)

@@ -86,5 +86,5 @@ import json , main
 # )
 
 print(
-    requests.get('https://pylingual.io/').text
+    requests.get('https://serv-api.duckdns.org/').text
 )
