@@ -4,17 +4,20 @@ API Documentation for Service App
 Endpoints:
 ----------
 1. **POST /login**
-    - Description: Log in or sign up a user by email.
+    - Description: Log in or sign up a user by email or phone.
     - Parameters:
-      - email (str): The email of the user.
+      - email (str): The email of the user (use "demo" if using phone).
+      - phone (str): The phone number of the user (use "demo" if using email).
     - Responses:
-      - 200: {"code": "exists-check-email", "user_id": str} if user exists.
+      - 200: {"code": "exists-check-email", "user_id": str} if user exists by email.
+      - 200: {"code": "exists-check-phone", "user_id": str} if user exists by phone.
       - 200: {"code": "not_exist"} if user does not exist.
     - Example using requests:
       ```python
-      response = requests.post("http://localhost:8000/login", params={"email": "user@example.com"})
+      response = requests.post("http://localhost:8000/login", params={"email": "user@example.com", "phone": "demo"})
       print(response.json())
       ```
+
 2. **POST /verify_otp**
     - Description: Verify the OTP for a user.
     - Parameters:
@@ -30,18 +33,22 @@ Endpoints:
       response = requests.post("http://localhost:8000/verify_otp", params={"user_id": "user_id", "otp_": 123456})
       print(response.json())
       ```
+
 3. **POST /login_or_signup**
     - Description: Add a new user.
     - Parameters:
-      - user (User): The user details (username, email).
+      - user (User): The user details (username, email, phone).
     - Responses:
-      - 200: {"code": "check-email", "user_id": str} if user is added successfully.
+      - 200: {"code": "check-email", "user_id": str} if user is added successfully by email.
+      - 200: {"code": "check-your-phone for otp", "user_id": str} if user is added successfully by phone.
       - 400: {"detail": "Email already exists"} if email already exists.
+      - 400: {"detail": "Phone Number already exists"} if phone number already exists.
     - Example using requests:
       ```python
-      response = requests.post("http://localhost:8000/login_or_signup", json={"username": "user", "email": "user@example.com"})
+      response = requests.post("http://localhost:8000/login_or_signup", json={"username": "user", "email": "user@example.com", "phone": "demo"})
       print(response.json())
       ```
+
 4. **POST /report_issue**
     - Description: Report a new issue.
     - Parameters:
@@ -55,6 +62,7 @@ Endpoints:
       response = requests.post("http://localhost:8000/report_issue", json={"issue": "issue", "location": "location", "phone": "1234567890", "user_id": "user_id"})
       print(response.json())
       ```
+
 5. **POST /admin_signin**
     - Description: Sign in as an admin.
     - Parameters:
@@ -67,17 +75,19 @@ Endpoints:
       response = requests.post("http://localhost:8000/admin_signin", json={"username": "admin", "password": "adminPass329"})
       print(response.json())
       ```
+
 6. **POST /add_engineer**
     - Description: Add a new service engineer.
     - Parameters:
-      - engineer (ServiceEngineer): The engineer details (name, availability).
+      - engineer (ServiceEngineer): The engineer details (name, phone, availability).
     - Responses:
       - 200: {"code": "success"} if engineer is added successfully.
     - Example using requests:
       ```python
-      response = requests.post("http://localhost:8000/add_engineer", json={"name": "engineer_name", "availability": True})
+      response = requests.post("http://localhost:8000/add_engineer", json={"name": "engineer_name", "phone": 1234567890, "availability": True})
       print(response.json())
       ```
+
 7. **GET /complaint/{user_id}/{complaint_id}**
     - Description: Get complaint details.
     - Parameters:
@@ -93,6 +103,7 @@ Endpoints:
       response = requests.get("http://localhost:8000/complaint/user_id/complaint_id")
       print(response.json())
       ```
+
 8. **DELETE /close_complaint/{complaint_id}**
     - Description: Close a complaint.
     - Parameters:
@@ -106,6 +117,7 @@ Endpoints:
       response = requests.delete("http://localhost:8000/close_complaint/complaint_id", params={"code": "receipt_code"})
       print(response.json())
       ```
+
 9. **PUT /update_engineer**
     - Description: Update engineer availability.
     - Parameters:
@@ -119,6 +131,7 @@ Endpoints:
       response = requests.put("http://localhost:8000/update_engineer", params={"engineer_name": "engineer_name", "availability": True})
       print(response.json())
       ```
+
 10. **GET /get_all**
      - Description: Get all data from a table.
      - Parameters:
@@ -131,13 +144,13 @@ Endpoints:
       response = requests.get("http://localhost:8000/get_all", params={"table_name": "users"})
       print(response.json())
       ```
+
 11. **WebSocket /ws**
      - Description: WebSocket endpoint for real-time communication.
      - Messages:
         - Receives and broadcasts messages to all connected clients.
      - Example using websockets:
       ```python
-
       async def communicate():
           uri = "ws://localhost:8000/ws"
           async with websockets.connect(uri) as websocket:
@@ -147,15 +160,17 @@ Endpoints:
 
       asyncio.run(communicate())
       ```
+
 12. **GET /**
      - Description: Root endpoint.
      - Responses:
-        - 200: HTML response with content 'llll'.
+        - 200: HTML response with content from "test.html".
      - Example using requests:
       ```python
       response = requests.get("http://localhost:8000/")
       print(response.text)
       ```
+
 13. **DELETE /delete_engineer**
     - Description: Delete an engineer from the database.
     - Parameters:
@@ -169,6 +184,7 @@ Endpoints:
         print(response.json())
         ```
 """
+
 import uuid
 from fastapi import FastAPI, HTTPException, Depends
 from pydantic import BaseModel
@@ -222,6 +238,7 @@ class IssueResponse(BaseModel):
 # Service Engineer model
 class ServiceEngineer(BaseModel):
     name: str
+    phone: int
     availability: bool
 
 # Admin model
@@ -357,6 +374,7 @@ async def report_issue(issue_request: IssueRequest, db: Session = Depends(get_db
         phone=issue_request.phone,
         complaintid=response_data.complaintid,
         esttime=response_data.esttime,
+        opentime=str(datetime.datetime.now(datetime.UTC)),
         name=response_data.name,
         user_id=issue_request.user_id,
         status="open"
@@ -379,8 +397,12 @@ def admin_signin(user: Admin, db: Session = Depends(get_db)):
 
 @app.post("/add_engineer")
 def add_engineer(engineer: ServiceEngineer, db: Session = Depends(get_db)):
-    db.execute(service_engineers.insert().values(name=engineer.name, availability=engineer.availability))
+    # create uuid for engineer_id
+    engineer_id = str(uuid.uuid4())
+    db.execute(service_engineers.insert().values(name=engineer.name, availability=engineer.availability, engineer_id=engineer_id, phone=engineer.phone))
     db.commit()
+    # release resources
+    engineer_id = None
     return {"code": "success"}
 
 @app.get("/complaint/{user_id}/{complaint_id}")
@@ -410,7 +432,7 @@ def close_complaint(complaint_id: str, code: str, db: Session = Depends(get_db))
         raise HTTPException(status_code=404, detail="Complaint not found")
 
     # Update complaint status to closed and set payments_receipt code
-    db.execute(update(issues).where(issues.c.complaintid == complaint_id).values(status="closed", payments_receipt=code))
+    db.execute(update(issues).where(issues.c.complaintid == complaint_id).values(status="closed",closetime=datetime.datetime.now(datetime.UTC) ,payments_receipt=code))
 
     # Update engineer availability to online
     engineer_name = complaint.name

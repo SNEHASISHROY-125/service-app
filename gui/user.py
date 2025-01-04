@@ -327,7 +327,7 @@ class APP(MDApp):
                     if i[8] == 'open':
                         Clock.schedule_once(lambda dt: toast('You have an ongoing appointment',1),0.2)
                         self.switch_tab = 'appointments_tab'
-                        Clock.schedule_once(lambda dt: self.switch_to_tab(),.5)
+                        Clock.schedule_once(lambda dt: self.on_tab_switch(),.5)
                         Clock.schedule_once(lambda dt: _modal.dismiss() ,1)
                         return
             # check data is not empty

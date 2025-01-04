@@ -31,6 +31,8 @@ issues = Table(
     Column("phone", Integer),
     Column("complaintid", String, unique=True, index=True),
     Column("esttime", String),
+    Column("opentime", String),
+	Column("closetime", String),
     Column("name", String),
     Column("user_id", String),
     Column("status", String),
@@ -41,7 +43,9 @@ service_engineers = Table(
     "service_engineers",
     metadata,
     Column("id", Integer, primary_key=True, index=True),
+    Column("engineer_id", String, unique=True, index=True),
     Column("name", String),
+    Column("phone", Integer, unique=True, index=True),
     Column("availability", Boolean),
 )
 

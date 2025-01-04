@@ -1,0 +1,82 @@
+
+
+<VerifyOTPScreen@Screen>:
+    name: 'verify_otp'
+
+    FitImage:
+        source: app.image_list[0]
+    MDIconButton:
+        icon: "skip-previous-circle"
+        text: "Home"
+        icon_size: "32sp"  
+        size_hint: None, None
+        size: dp(400), dp(80)
+        pos_hint: {'top': 1, 'center_x': 0.3}
+        on_release: app.root.current = 'services' if not app.last_screen else app.last_screen
+        
+    MDFloatLayout:
+        pos_hint: {'center_x': 0.5, 'center_y': 0.5}
+        spacing: dp(10)
+
+
+		MDCard:
+			size_hint: None, None
+			size: Window.size[0]*0.8, Window.size[1]*0.6
+			pos_hint: {'center_x': 0.5, 'center_y': 0.5}
+			elevation: 0
+			radius: [20, 20, 20, 20]
+			md_bg_color: rgba(179, 218, 255, 80)
+			pos_hint: {'center_x': 0.5, 'center_y': 0.5}
+			MDBoxLayout:
+				padding: dp(20)
+				orientation: "vertical"
+				spacing: dp(10)
+				# pos_hint: {'center_x': 0.5, 'center_y': 0.7}
+				# md_bg_color: 0, 0, 1, 1
+				AsyncImage:
+					source: 'kv/one-time-password.png'
+					size_hint_y: None
+					height: Window.size[1]*0.17
+					# pos_hint: {'center_y': 0.9}
+				MDLabel:
+					text: "Enter the 6 digit OTP"
+					font_style: "H5"
+					halign: "center"
+					size_hint_y: None
+					height: self.texture_size[1]
+					# pos_hint: {'center_y': 0.9}
+					# md_bg_color: 0, 0, 1, 1
+				MDLabel:
+					text: "Check also your email spam folder" if app.email else "Check your Phone SMS inbox"
+					font_style: "Caption"
+					halign: "center"
+					size_hint_y: None
+					height: self.texture_size[1]
+				MDLabel:
+					text: " "
+					size_hint_x: 0.01
+					# md_bg_color: 0, 0, 1, 1
+				MDTextField:
+					id: otp
+					mode: "rectangle"
+					hint_text: "Enter OTP sent to your Email" if app.email else "Enter OTP sent to your phone"
+					pos_hint: {'center_x': 0.5, 'center_y': 0.5}
+					max_text_length: 6
+					input_filter: "int"
+				MDLabel:
+					text: " "
+					size_hint_x: 0.08
+				MDRaisedButton:
+					text: "Verify OTP"
+					pos_hint: {'center_x': 0.5, 'center_y': 0.3}
+					on_release: 
+						setattr(app, 'last_screen', 'verify_otp')
+				MDLabel:
+					# text: "Proceed to agree with our Privacy Policy"
+					text: "OTP will expire in 10 minutes"
+					# size_hint_x: 0.08
+					halign: "center"
+					theme_text_color: "Secondary"
+					font_style: "Caption"
+   
+				

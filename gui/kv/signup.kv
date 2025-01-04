@@ -1,0 +1,99 @@
+#:import Window kivy.core.window.Window
+
+<SignupScreen@Screen>:
+    name: 'signup'
+
+    FitImage:
+        source: app.image_list[0]
+    
+    MDIconButton:
+        icon: "skip-previous-circle"
+        text: "Home"
+        icon_size: "32sp"  
+        size_hint: None, None
+        size: dp(400), dp(80)
+        pos_hint: {'top': 1, 'center_x': 0.3}
+        on_release: app.root.current = 'services' if not app.last_screen else app.last_screen
+        
+    MDFloatLayout:
+        pos_hint: {'center_x': 0.5, 'center_y': 0.5}
+        
+        MDCard:
+            size_hint: None, None
+            size: Window.size[0]*0.8, Window.size[1]*0.6
+            pos_hint: {'center_x': 0.5, 'center_y': 0.57}
+            elevation: 0
+            radius: [20, 20, 20, 20]
+            md_bg_color: rgba(179, 218, 255, 80)
+            MDBoxLayout:
+                orientation: 'vertical'
+                padding: dp(30)
+                # pos_hint: {'center_x': 0.5, 'center_y': 0.9}
+                spacing: dp(10)
+
+                AsyncImage:
+					source: 'kv/icon.png'
+					size_hint_y: None
+					height: Window.size[1]*0.13
+
+                MDLabel:
+                    text: "Quick & Secure Signup"
+                    font_style: "H5"
+                    halign: "center"
+                    size_hint_y: None
+                    height: self.texture_size[1]
+                    # pos_hint: {'center_y': 0.9}
+                    # md_bg_color: 0, 0, 1, 1
+                MDLabel:
+                    text: "We'll send you a one-time code"
+                    font_style: "Caption"
+                    halign: "center"
+                    size_hint_y: None
+                    height: self.texture_size[1]
+                MDTextField:
+                    id: username
+                    mode: "rectangle"
+                    hint_text: "Username"
+                    pos_hint: {'center_x': 0.5, 'center_y': 0.6}
+                    max_text_length: 20
+                MDTextField:
+                    id: email
+                    mode: "rectangle"
+                    hint_text: "Email" if not dialog_switch.active else "Mobile Number"
+                    pos_hint: {'center_x': 0.5, 'center_y': 0.4}
+                    max_text_length: 50 if not dialog_switch.active else 10
+                    input_filter: "int" if dialog_switch.active else None
+                MDBoxLayout:
+                    orientation: 'horizontal'
+                    size_hint_y: None
+                    height: self.minimum_height
+                    spacing: dp(10)
+
+                    MDSwitch:
+                        id: dialog_switch
+                        size_hint_x: 0.2
+                        pos_hint: {"center_y": 0.33} 
+                    MDLabel:
+                        text: " "
+                        size_hint_x: 0.08
+                        halign: "left"
+                    MDLabel:
+                        text: "Use Mobile Number"
+                        theme_text_color: "Custom"
+                        bold: True
+                        text_color: app.theme_cls.primary_color  if dialog_switch.active else rgba(51, 102, 255)
+                        font_style: "Caption"
+                        size_hint_x: 0.3
+                        halign: "center"
+                        # md_bg_color: 0, 0, 1, .3
+
+
+                    
+                MDRaisedButton:
+                    text: "Signup"
+                    pos_hint: {'center_x': 0.5, 'center_y': 0.3}
+                    on_release: 
+                        setattr(app ,'email' ,email.text) if not dialog_switch.active else setattr(app, 'mobile', email.text)
+                        setattr(app, 'last_screen', 'signup')
+                        app.signup() if username.text and email.text and len(email.text)<50 and len(username.text)<20 else app.toast("Please fill all fields")
+    

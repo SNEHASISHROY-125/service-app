@@ -1,0 +1,37 @@
+# : MapView kivy_garden.mapview
+
+<MapScreen@Screen>
+	name: 'map'
+	
+	MapView:
+		id: mp
+		lat: 26.7749
+		lon: 89.4194
+		zoom: 11
+		# Add this if you want markers on the map
+		#on_touch_down: root.add_marker(args[1])
+
+	MDFloatLayout:
+		size_hint_y: 0.1
+		spacing: 10
+		MDBoxLayout:
+			orientation: 'horizontal'
+			padding: 10
+
+			MDTextField:
+				id: lat_input
+				hint_text: "Latitude"
+				helper_text: "Enter latitude"
+				helper_text_mode: "on_error"
+
+			MDTextField:
+				id: lon_input
+				hint_text: "Longitude"
+				helper_text: "Enter longitude"
+				helper_text_mode: "on_error"
+
+			MDRaisedButton:
+				text: "Refresh Map"
+				on_release: 
+					mp.lat = float(lat_input.text)
+					mp.lon = float(lon_input.text)

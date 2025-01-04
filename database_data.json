@@ -1,0 +1,477 @@
+{
+    "users": [
+        {
+            "id": 1,
+            "user_id": "a772963d-f7ac-4a42-a0ed-9ca04c74f41a",
+            "username": "roy t",
+            "email": "rsnehasish125@gmail.com",
+            "password": null
+        },
+        {
+            "id": 2,
+            "user_id": "151215d1-234b-47d0-99fc-fbaefc2f1b68",
+            "username": "ddd",
+            "email": "bicihe4478@adosnan.com",
+            "password": null
+        },
+        {
+            "id": 3,
+            "user_id": "5589a3d5-5112-4540-9861-0de58cd65659",
+            "username": "sss",
+            "email": "xohoro6681@advitize.com",
+            "password": null
+        },
+        {
+            "id": 4,
+            "user_id": "8ea93312-32cf-4c98-8e4e-52f82f36d014",
+            "username": "sss",
+            "email": "harota3406@adosnan.com",
+            "password": null
+        },
+        {
+            "id": 5,
+            "user_id": "5610e7a9-eaea-4c9a-9d3e-86f0276501b9",
+            "username": "",
+            "email": "",
+            "password": null
+        },
+        {
+            "id": 6,
+            "user_id": "0ef59067-6cc5-447a-8d4c-21e50577958d",
+            "username": "hato",
+            "email": "vetap72409@advitize.com",
+            "password": null
+        },
+        {
+            "id": 7,
+            "user_id": "b2216f07-78c3-4328-8275-2bdc12b38cf5",
+            "username": "verb",
+            "email": "werova8121@angewy.com",
+            "password": null
+        },
+        {
+            "id": 8,
+            "user_id": "ec149e19-200a-4852-ba0a-717ae74d0d08",
+            "username": "javeep",
+            "email": "jevep84596@angewy.com",
+            "password": null
+        },
+        {
+            "id": 9,
+            "user_id": "fadc75ff-80dd-498f-9afe-9af1518c2d76",
+            "username": "mom",
+            "email": "momawet284@angewy.com",
+            "password": null
+        },
+        {
+            "id": 10,
+            "user_id": "1e6c10e6-dcf7-4fa8-92f1-446e2688eaff",
+            "username": "kivob",
+            "email": "kivop79803@aleitar.com",
+            "password": null
+        },
+        {
+            "id": 11,
+            "user_id": "408000c7-0db3-4390-bd53-f85e15691b12",
+            "username": "kids",
+            "email": "kidis35015@bulatox.com",
+            "password": null
+        },
+        {
+            "id": 12,
+            "user_id": "2e8151c8-648c-48ba-9f64-b9e31666035d",
+            "username": "santanu",
+            "email": "santanu.roy010901@gmail.com",
+            "password": null
+        },
+        {
+            "id": 13,
+            "user_id": "cc1b4c16-04c6-4340-bc1f-3404cf3f3434",
+            "username": "dokono72",
+            "email": "dokono7526@cpaurl.com",
+            "password": null
+        },
+        {
+            "id": 14,
+            "user_id": "1418a728-85ff-46e1-9651-a8f9e8925c4f",
+            "username": "vv",
+            "email": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+            "password": null
+        },
+        {
+            "id": 15,
+            "user_id": "6c02cec8-bc46-4c91-9807-f4f8b2d1a284",
+            "username": "Ebram hossain",
+            "email": "ebramhusain@gmail.com",
+            "password": null
+        }
+    ],
+    "issues": [
+        {
+            "id": 1,
+            "issue": "hghg printer issue",
+            "location": "la",
+            "phone": 990629,
+            "complaintid": "ceb246f1-b793-4435-8f1a-fddb6f7a75f6",
+            "esttime": "2 hours",
+            "name": "str",
+            "user_id": "a772963d-f7ac-4a42-a0ed-9ca04c74f41a",
+            "status": "closed",
+            "payments_receipt": "CANCELED"
+        },
+        {
+            "id": 2,
+            "issue": "router issue",
+            "location": "la",
+            "phone": 996290,
+            "complaintid": "fe52c871-e399-4dfa-a7f8-4e0909d4286c",
+            "esttime": "2 hours",
+            "name": "engineer_name",
+            "user_id": "a772963d-f7ac-4a42-a0ed-9ca04c74f41a",
+            "status": "closed",
+            "payments_receipt": "CANCELED"
+        },
+        {
+            "id": 3,
+            "issue": "bz router issue",
+            "location": "la",
+            "phone": 990269,
+            "complaintid": "6a3f57ed-766f-49f5-a1d7-7c9abbb89361",
+            "esttime": "2 hours",
+            "name": "T1",
+            "user_id": "a772963d-f7ac-4a42-a0ed-9ca04c74f41a",
+            "status": "closed",
+            "payments_receipt": "paytm-recipt"
+        },
+        {
+            "id": 4,
+            "issue": "tv issue",
+            "location": "la",
+            "phone": 990269,
+            "complaintid": "384a7820-381a-460d-a641-ae737e91a429",
+            "esttime": "2 hours",
+            "name": "T1",
+            "user_id": "a772963d-f7ac-4a42-a0ed-9ca04c74f41a",
+            "status": "closed",
+            "payments_receipt": "CANCELED"
+        },
+        {
+            "id": 5,
+            "issue": "demo abcd",
+            "location": "ii",
+            "phone": 9999,
+            "complaintid": "1827d7eb-1fee-46a8-9d34-161fddb0be74",
+            "esttime": "2 hours",
+            "name": "T2",
+            "user_id": "a772963d-f7ac-4a42-a0ed-9ca04c74f41a",
+            "status": "closed",
+            "payments_receipt": "CANCELED"
+        },
+        {
+            "id": 6,
+            "issue": "windows stuck on boot",
+            "location": "nyc",
+            "phone": 9474835578,
+            "complaintid": "7557343a-8409-4928-a8d1-c5bb154e4ef6",
+            "esttime": "2 hours",
+            "name": "engineer_name",
+            "user_id": "5610e7a9-eaea-4c9a-9d3e-86f0276501b9",
+            "status": "closed",
+            "payments_receipt": "CANCELED"
+        },
+        {
+            "id": 7,
+            "issue": "LG tv not turning on",
+            "location": "nyc",
+            "phone": 9474835578,
+            "complaintid": "88f6c37e-a9b5-4147-87ca-b4a8d40b0ade",
+            "esttime": "2 hours",
+            "name": "T1",
+            "user_id": "5610e7a9-eaea-4c9a-9d3e-86f0276501b9",
+            "status": "closed",
+            "payments_receipt": "CANCELED"
+        },
+        {
+            "id": 8,
+            "issue": "ben-q minitor black spot issue",
+            "location": "cob",
+            "phone": 9997806521,
+            "complaintid": "3b0df5a9-4e88-44cb-a738-d804968b2658",
+            "esttime": "2 hours",
+            "name": "ranma89",
+            "user_id": "0ef59067-6cc5-447a-8d4c-21e50577958d",
+            "status": "closed",
+            "payments_receipt": "CANCELED"
+        },
+        {
+            "id": 9,
+            "issue": "demo-test-complaint-01",
+            "location": "cob",
+            "phone": 9993883833,
+            "complaintid": "d1422edf-fba4-4917-88ba-73eab0306b36",
+            "esttime": "2 hours",
+            "name": "kyle",
+            "user_id": "0ef59067-6cc5-447a-8d4c-21e50577958d",
+            "status": "closed",
+            "payments_receipt": "cancelled"
+        },
+        {
+            "id": 10,
+            "issue": "demo-test-complaint-02",
+            "location": "cob",
+            "phone": 1102229939,
+            "complaintid": "1469996c-4529-4ca4-a9e5-b6acc7386ecf",
+            "esttime": "2 hours",
+            "name": "bot11",
+            "user_id": "0ef59067-6cc5-447a-8d4c-21e50577958d",
+            "status": "closed",
+            "payments_receipt": "cancelled"
+        },
+        {
+            "id": 11,
+            "issue": "demo-test-03",
+            "location": "cob",
+            "phone": 9978056431,
+            "complaintid": "2cc5ecbf-b4f6-411e-9102-9a7c6d3e37e8",
+            "esttime": "2 hours",
+            "name": "kyle",
+            "user_id": "0ef59067-6cc5-447a-8d4c-21e50577958d",
+            "status": "closed",
+            "payments_receipt": "CANCELED"
+        },
+        {
+            "id": 12,
+            "issue": "test-issue-10",
+            "location": "la",
+            "phone": 9832890765,
+            "complaintid": "7ccd546b-33c6-45a1-9def-84599cb08b64",
+            "esttime": "2 hours",
+            "name": "ranma89",
+            "user_id": "0ef59067-6cc5-447a-8d4c-21e50577958d",
+            "status": "closed",
+            "payments_receipt": "CANCELED"
+        },
+        {
+            "id": 13,
+            "issue": "xerox mechine canon malfunctioning",
+            "location": "la",
+            "phone": 9987575903,
+            "complaintid": "f4fb8ca1-a224-402d-9cfa-94165705c2d8",
+            "esttime": "2 hours",
+            "name": "kyle",
+            "user_id": "0ef59067-6cc5-447a-8d4c-21e50577958d",
+            "status": "closed",
+            "payments_receipt": "CANCELED"
+        },
+        {
+            "id": 14,
+            "issue": "voltas ac 2020 not turning on",
+            "location": "la",
+            "phone": 9999000202,
+            "complaintid": "c2a00225-865c-481f-944f-d9c36aa0220b",
+            "esttime": "2 hours",
+            "name": "ranma89",
+            "user_id": "0ef59067-6cc5-447a-8d4c-21e50577958d",
+            "status": "open",
+            "payments_receipt": null
+        },
+        {
+            "id": 15,
+            "issue": "hp lazer printer ink jam issue",
+            "location": "la",
+            "phone": 9980774732,
+            "complaintid": "0463904b-9d89-4f97-9f2b-b651439a7f85",
+            "esttime": "2 hours",
+            "name": "test-bot-11",
+            "user_id": "cc1b4c16-04c6-4340-bc1f-3404cf3f3434",
+            "status": "closed",
+            "payments_receipt": "CANCELED"
+        },
+        {
+            "id": 16,
+            "issue": "tv samsung q-led black sport issue",
+            "location": "la",
+            "phone": 8897579776,
+            "complaintid": "08896c99-a4d0-4d71-8a4f-3fd52375510a",
+            "esttime": "2 hours",
+            "name": "test-bot-12",
+            "user_id": "cc1b4c16-04c6-4340-bc1f-3404cf3f3434",
+            "status": "closed",
+            "payments_receipt": "CANCELLED"
+        },
+        {
+            "id": 17,
+            "issue": "demo-complaint-15",
+            "location": "la",
+            "phone": 9987088588,
+            "complaintid": "00bb0e14-3374-4e06-aca2-1f196725b1ec",
+            "esttime": "2 hours",
+            "name": "test-bot-12",
+            "user_id": "cc1b4c16-04c6-4340-bc1f-3404cf3f3434",
+            "status": "closed",
+            "payments_receipt": "CANCELED"
+        },
+        {
+            "id": 18,
+            "issue": "demo-complaint-17",
+            "location": "la",
+            "phone": 9999948848,
+            "complaintid": "ad6d4505-228a-4ab2-896b-3d69cf4204f8",
+            "esttime": "2 hours",
+            "name": "test-bot-11",
+            "user_id": "cc1b4c16-04c6-4340-bc1f-3404cf3f3434",
+            "status": "closed",
+            "payments_receipt": "CANCELED"
+        },
+        {
+            "id": 19,
+            "issue": "demo-complaint-19",
+            "location": "la",
+            "phone": 7777268902,
+            "complaintid": "1c758e37-294c-485b-a679-6cb6d7b9bbc8",
+            "esttime": "2 hours",
+            "name": "test-bot-12",
+            "user_id": "a772963d-f7ac-4a42-a0ed-9ca04c74f41a",
+            "status": "closed",
+            "payments_receipt": "CANCELED"
+        },
+        {
+            "id": 20,
+            "issue": "benq monitor 24 inch hdmi port damaged",
+            "location": "cob",
+            "phone": 9474835578,
+            "complaintid": "d04d8239-481e-41fb-8d3c-53d129b1106e",
+            "esttime": "2 hours",
+            "name": "test-bot-11",
+            "user_id": "a772963d-f7ac-4a42-a0ed-9ca04c74f41a",
+            "status": "closed",
+            "payments_receipt": "CANCELED"
+        },
+        {
+            "id": 21,
+            "issue": "test-Apot-90",
+            "location": "cob",
+            "phone": 7303383628,
+            "complaintid": "d0b3d045-a4c7-4b02-baba-ed64e4952622",
+            "esttime": "2 hours",
+            "name": "test-bot-11",
+            "user_id": "a772963d-f7ac-4a42-a0ed-9ca04c74f41a",
+            "status": "closed",
+            "payments_receipt": "CANCELED"
+        }
+    ],
+    "service_engineers": [
+        {
+            "id": 10,
+            "name": "ranma89",
+            "availability": 0
+        },
+        {
+            "id": 11,
+            "name": "kyle",
+            "availability": 1
+        },
+        {
+            "id": 12,
+            "name": "test-bot-11",
+            "availability": 1
+        },
+        {
+            "id": 13,
+            "name": "test-bot-12",
+            "availability": 1
+        }
+    ],
+    "otp": [
+        {
+            "id": 1,
+            "user_id": "a772963d-f7ac-4a42-a0ed-9ca04c74f41a",
+            "otp": 308420,
+            "UTC": "2024-12-23 17:08:56.898509+00:00"
+        },
+        {
+            "id": 2,
+            "user_id": "151215d1-234b-47d0-99fc-fbaefc2f1b68",
+            "otp": 892819,
+            "UTC": "2024-10-20 18:45:03.988305+00:00"
+        },
+        {
+            "id": 3,
+            "user_id": "5589a3d5-5112-4540-9861-0de58cd65659",
+            "otp": 301186,
+            "UTC": "2024-10-20 18:46:18.677908+00:00"
+        },
+        {
+            "id": 4,
+            "user_id": "8ea93312-32cf-4c98-8e4e-52f82f36d014",
+            "otp": 232960,
+            "UTC": "2024-10-20 18:49:45.434173+00:00"
+        },
+        {
+            "id": 5,
+            "user_id": "5610e7a9-eaea-4c9a-9d3e-86f0276501b9",
+            "otp": 173310,
+            "UTC": "2024-10-23 09:16:52.629399+00:00"
+        },
+        {
+            "id": 6,
+            "user_id": "0ef59067-6cc5-447a-8d4c-21e50577958d",
+            "otp": 880088,
+            "UTC": "2024-10-23 10:39:12.639814+00:00"
+        },
+        {
+            "id": 7,
+            "user_id": "b2216f07-78c3-4328-8275-2bdc12b38cf5",
+            "otp": 435017,
+            "UTC": "2024-10-23 11:21:14.758768+00:00"
+        },
+        {
+            "id": 8,
+            "user_id": "ec149e19-200a-4852-ba0a-717ae74d0d08",
+            "otp": 906732,
+            "UTC": "2024-10-23 11:37:03.839967+00:00"
+        },
+        {
+            "id": 9,
+            "user_id": "fadc75ff-80dd-498f-9afe-9af1518c2d76",
+            "otp": 802339,
+            "UTC": "2024-10-23 11:49:21.228598+00:00"
+        },
+        {
+            "id": 10,
+            "user_id": "1e6c10e6-dcf7-4fa8-92f1-446e2688eaff",
+            "otp": 811986,
+            "UTC": "2024-10-27 16:01:52.784355+00:00"
+        },
+        {
+            "id": 11,
+            "user_id": "408000c7-0db3-4390-bd53-f85e15691b12",
+            "otp": 287441,
+            "UTC": "2024-10-27 16:03:52.367823+00:00"
+        },
+        {
+            "id": 12,
+            "user_id": "2e8151c8-648c-48ba-9f64-b9e31666035d",
+            "otp": 682229,
+            "UTC": "2024-11-12 10:08:15.391747+00:00"
+        },
+        {
+            "id": 13,
+            "user_id": "cc1b4c16-04c6-4340-bc1f-3404cf3f3434",
+            "otp": 194592,
+            "UTC": "2024-11-20 14:57:38.372830+00:00"
+        },
+        {
+            "id": 14,
+            "user_id": "1418a728-85ff-46e1-9651-a8f9e8925c4f",
+            "otp": 870705,
+            "UTC": "2024-11-20 17:24:44.629244+00:00"
+        },
+        {
+            "id": 15,
+            "user_id": "6c02cec8-bc46-4c91-9807-f4f8b2d1a284",
+            "otp": 255431,
+            "UTC": "2024-12-10 06:57:41.814514+00:00"
+        }
+    ]
+}

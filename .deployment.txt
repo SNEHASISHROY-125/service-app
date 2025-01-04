@@ -1,4 +1,0 @@
-[config]
-command = ./startup.sh
-[config]
-command = ./startup.sh

@@ -22,3 +22,6 @@ venv/
 env
 
 app.db
+.deployment.txt
+startup.sh
+test.py
