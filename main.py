@@ -269,7 +269,7 @@ def login_or_signup(email: str,phone:str, db: Session = Depends(get_db)):
         stmt = select(users).where(users.c.phone == phone)
         existing_user = db.execute(stmt).first()
         if existing_user:
-            # send the otp to the email
+            # send the otp to the phone
             otp_ = mail.generate_otp()
             # add the otp to the database
             db.execute(update(otp).where(otp.c.user_id == existing_user.user_id).values(otp=otp_[0], UTC=otp_[1]))
@@ -341,6 +341,14 @@ def add_user(user: User, db: Session = Depends(get_db)):
     
     # return {"code": "success", "user_id": user_id}
 
+@app.post("/admin_signin")
+def admin_signin(user: Admin, db: Session = Depends(get_db)):
+    # Dummy admin credentials
+    admin_username = "admin"
+    admin_password = "adminPass329"
+    if user.username != admin_username or user.password != admin_password:
+        raise HTTPException(status_code=400, detail="Invalid admin credentials")
+    return {"code": "success"}
 
 @app.post("/report_issue", response_model=IssueResponse)
 async def report_issue(issue_request: IssueRequest, db: Session = Depends(get_db)):
@@ -386,25 +394,6 @@ async def report_issue(issue_request: IssueRequest, db: Session = Depends(get_db
     db.commit()
     return response_data
 
-@app.post("/admin_signin")
-def admin_signin(user: Admin, db: Session = Depends(get_db)):
-    # Dummy admin credentials
-    admin_username = "admin"
-    admin_password = "adminPass329"
-    if user.username != admin_username or user.password != admin_password:
-        raise HTTPException(status_code=400, detail="Invalid admin credentials")
-    return {"code": "success"}
-
-@app.post("/add_engineer")
-def add_engineer(engineer: ServiceEngineer, db: Session = Depends(get_db)):
-    # create uuid for engineer_id
-    engineer_id = str(uuid.uuid4())
-    db.execute(service_engineers.insert().values(name=engineer.name, availability=engineer.availability, engineer_id=engineer_id, phone=engineer.phone))
-    db.commit()
-    # release resources
-    engineer_id = None
-    return {"code": "success"}
-
 @app.get("/complaint/{user_id}/{complaint_id}")
 def get_complaint(user_id: str, complaint_id: str, db: Session = Depends(get_db)):
     # Get complaint details for user_id=nil.str and complaint_id
@@ -440,6 +429,32 @@ def close_complaint(complaint_id: str, code: str, db: Session = Depends(get_db))
 
     db.commit()
     return {"code": "success", "complaint_id": complaint_id, "status": "closed"}
+
+@app.post("/add_engineer")
+def add_engineer(engineer: ServiceEngineer, db: Session = Depends(get_db)):
+    # create uuid for engineer_id
+    engineer_id = str(uuid.uuid4())
+    db.execute(service_engineers.insert().values(name=engineer.name, availability=engineer.availability, engineer_id=engineer_id, phone=engineer.phone))
+    db.commit()
+    # release resources
+    # engineer_id = None
+    return {"code": "success","engineer_id": engineer_id}
+
+@app.post("/engineer_login")
+def engineer_login(engineer_id: str, db: Session = Depends(get_db)):
+    stmt = select(service_engineers).where(service_engineers.c.engineer_id == engineer_id)
+    engineer = db.execute(stmt).first()
+    if not engineer:
+        raise HTTPException(status_code=404, detail=f"Engineer not found, with id {engineer_id}")
+    # if found send the otp to phone
+    otp_ = mail.generate_otp()
+    # add the otp to the database
+    db.execute(update(otp).where(otp.c.user_id == engineer_id).values(otp=otp_[0], UTC=otp_[1]))
+    db.commit()
+    print(_:=mail.send_otp_mob(otp=otp_[0], number=engineer.phone))
+    # phone = engineer.phone
+    # return {"code": "exists-check-phone", "user_id": existing_user.user_id}
+    return {"code": "OTP sent check phone", "engineer_id": engineer_id, "name": engineer.name}
 
 # func to modify engineer availability | params: engineer_name, availability
 @app.put("/update_engineer")

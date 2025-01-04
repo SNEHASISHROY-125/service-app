@@ -25,3 +25,5 @@ app.db
 .deployment.txt
 startup.sh
 test.py
+
+gui/cache/
